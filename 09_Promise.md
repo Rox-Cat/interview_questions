@@ -1,0 +1,824 @@
+# Promise
+
+> 相关链接
+>
+> [先锋教育笔记](E:\研究生\自我学习\前端学习\06_Promise\笔记\Promise笔记.md)
+>
+> [Promise，async/await (javascript.info)](https://zh.javascript.info/async)
+>
+> [灵题库-前端题库 (lingtiku.com)](https://www.lingtiku.com/quiz/detail/6)
+
+## 面试题
+
+1. Promise中回调函数是同步的还是异步的？then的链式调用是同步的还是异步的？
+
+   Promise中的回调函数有两种类型：同步回调和异步回调。同步回调是指在Promise构造函数中传入的executor函数，它会立即执行，不会放入回调队列中。异步回调是指在Promise的then或catch方法中传入的onFulfilled或onRejected函数，它们会在Promise状态改变后执行，会放入回调队列中等待执行。
+
+   then方法的链式调用是异步的，因为每个then方法都会返回一个新的Promise对象，这个对象的状态由then方法中的回调函数的返回值决定。如果返回值是一个Promise对象，那么新的Promise对象就会跟随这个对象的状态；如果返回值是一个非Promise值，那么新的Promise对象就会变为fulfilled状态，并将这个值作为成功的值；如果回调函数抛出异常，那么新的Promise对象就会变为rejected状态，并将异常作为失败的原因。这样就可以实现多个异步操作按照顺序执行，并且可以获取每个操作的结果。
+
+## 基本概念
+
+#### 1. 如何理解Promise？
+
+> 回答的角度有哪些
+
+- Promise 的概念和作用：介绍 Promise 是什么，以及它解决了什么样的问题，即异步编程中的回调地狱问题。
+- Promise 的特点：Promise 有哪些特点，例如它是一个对象、有三种状态等。
+- Promise 的基本用法：如何创建一个 Promise 对象，以及如何通过 Promise 处理异步操作。
+- Promise 的链式调用：如何通过 Promise 的链式调用来避免回调地狱，以及如何在链式调用中处理异常情况。
+- Promise 的原理：Promise 的实现原理，包括如何使用状态、值和队列等来管理异步操作。
+
+#### 2. Promise的概念和作用
+
+Promise 是一种用于异步编程的解决方案，它的本质是对回调函数的封装。它可以让异步操作更加清晰、简洁，避免了回调地狱的问题。
+
+- 异步编程
+
+  异步编程是一种编程模式，其中操作不会立即返回结果，而是在后续的某个时刻返回。异步编程通常用于处理一些需要等待的操作，例如读取文件、发送网络请求、执行定时器等。
+
+- 回调地狱
+
+  回调地狱是一种由于嵌套过多的回调函数而导致代码可读性和可维护性降低的现象。
+
+  当有多个异步操作需要依次执行时，为了保证它们的执行顺序，往往需要将后续的操作嵌套在前面操作的回调函数中。
+
+  这种嵌套的回调函数可能会变得非常深，难以维护和理解，从而形成回调地狱。
+
+#### 3. Promise 的状态转移
+
+由 `new Promise` 构造器返回的 `promise` 对象具有以下内部属性：
+
+- `state` —— 最初是 `"pending"`，然后在 `resolve` 被调用时变为 `"fulfilled"`，或者在 `reject` 被调用时变为 `"rejected"`。
+- `result` —— 最初是 `undefined`，然后在 `resolve(value)` 被调用时变为 `value`，或者在 `reject(error)` 被调用时变为 `error`。
+
+当Promise实例化后处于pending状态，表示异步操作还未完成；
+
+当异步操作完成后，如果操作成功，则状态转移为fulfilled，同时result会变为操作成功的结果；
+
+如果操作失败，则状态转移为rejected，同时result会变为操作失败的原因。
+
+在状态转移后，Promise的状态和result值都是不可变的。
+
+#### 4. then()函数的执行与返回
+
+##### 4.1 .then()的返回值
+
+> .then(()=>return xxxx)函数中，一定会返回Promise对象，这样才会进行链式调用。
+>
+> - 返回一个非promise对象，都会被包裹为一个promise对象。return new Promise.resolve/rejected(xxx)
+> - 只有在抛出错误的时候是rejected
+
+then()方法的返回值是一个新的promise对象，并且这个对象的状态和then中的回调返回值相关。如果then中的回调函数：
+
+- 返回了一个值value，那么then返回的promise将会成为接受状态，并且将返回的值作为接受状态的回调函数的参数值。==> `return new Promise.resolve(value)`
+
+- 没有返回任何值，那么then返回的promise将会成为接受状态，并且该接受状态的回调函数的参数值为undefined。 `return new Promise.resolve(undefined)`
+
+- 抛出一个错误:`throw error`，那么then返回的promise将会成为拒绝状态，并且将抛出的错误作为拒绝状态的回调函数的参数值。注意：如果是return new Error(xx) 并不会触发rejected，因为是返回数值，而不是抛出错误。【==会在控制台显示吗==】
+
+- 返回一个已经是接受状态或拒绝状态的promise，那么then返回的promise也会成为相同的状态，并且将那个promise的回调函数的参数值作为该被返回的promise的回调函数的参数值。（返回的promise的返回值是.then()传递给下个的回调函数参数）
+
+- 返回一个未定状态（pending）的promise，那么then返回的promise的状态也是未定的，并且它的终态与那个promise的终态相同；同时，它变为终态时调用的回调函数参数与那个promise变为终态时的回调函数的参数是相同的。
+
+- .then()的透值，如果.then()中是非函数，那么他会返回传递来的参数
+
+  ```js
+  Promise.resolve(1)
+  .then(2)
+  .then(Promise.resolve(3))
+  .then(console.log)
+  ```
+
+  - js的.then(console.log)这段代码的意思是，当一个promise成功解决时，执行console.log函数，并隐式地将promise的结果传递给console.log函数。这是一种简写的方式，相当于.then(res => console.log(res))。如果你想给console.log函数传递其他参数，你可以使用Function.prototype.bind方法。
+
+  - 这段代码中.then()里面写的对象和数据，并没有报错，是因为.then()方法会忽略所有非函数的参数¹，并且会用一个恒等函数（(x) => x）或者一个抛出函数（(x) => { throw x; }）来替代它们²。所以，这段代码相当于：
+
+    ```js
+        Promise.resolve(1)
+        .then((x) => x)
+        .then((x) => x)
+        .then(console.log)
+    ```
+
+    最后输出的是1。
+
+
+##### 4.2 then的回调执行顺序
+
+> 直接看例子，非常透彻：
+>
+> [彻底理解Promise.then回调的执行顺序 - 掘金 (juejin.cn)](https://juejin.cn/post/6876686095954903048)
+
+主要是一个点：如果在then中存在其他微任务或者宏任务会怎么办？
+
+核心：
+
+- 如果存在微任务就加入微任务队列，等到同步执行完，再执行微任务。
+- then()函数中，默认存在一个return 的同步代码，因此要执行return，并将下一个then()加入到微任务队列中。
+
+```js
+new Promise((resolve, reject) => {    	[1]
+ console.log(1);
+  resolve();
+})
+.then((a) => {
+     console.log(2);
+      new Promise((resolve,reject) => {  [2]
+       console.log(3);
+        resolve();
+      })
+      .then((c) => {					[3]
+       console.log(4);
+      })
+      .then((d) => {					[4]
+       console.log(6);
+      })
+})
+.then((b) => {							[5]
+ console.log(5);
+});
+```
+
+- 在a的回调函数中，首先打印2，存在一个promise对象。
+
+- promise内部依次执行，打印3，状态变为fullfilled，将回调c加入微任务队列。
+- 此时，回调c并未执行，因此回调d，并未加入微任务队列
+- 继续执行回调a，返回一个promise对象，状态为fullfilled。
+- 回调5加入微任务队列。
+- 微任务队列中：回调c --- 回调b
+- 执行回调c，打印4。将回调d加入微任务队列。
+- 执行回调b，打印5，执行回调d，打印6
+
+1-2-3-4-5-6
+
+
+
+#### 5. Promise.reslove()的使用
+
+> [Promise.resolve()详解 - 浅笑· - 博客园 (cnblogs.com)](https://www.cnblogs.com/qianxiaox/p/14124551.html)
+
+Promise.resolve(xxx) = new Promise(resolve => resolve(xxx))
+
+- 状态fullfilled
+- 值：xxx
+
+#### 6. Promise.finally()
+
+> [Promise实例的finally方法 - zhishiyv - 博客园 (cnblogs.com)](https://www.cnblogs.com/zhishiyv/p/14303255.html)
+
+Promise.finally()的返回值
+
+> 如果没错，就返回上一个状态的promise
+>
+> 如果有错误/rejected，就抛出错误
+
+`.finally()`返回值是一个`promise`对象，它等价于原来的`promise`对象。它取决于原来的`promise`对象的状态和值，以及`finally()`方法中的函数是否抛出错误或者返回一个拒绝的`promise`。例如：
+
+    Promise.resolve(1)
+    .finally(() => 2) // 返回一个等价于Promise.resolve(1)的promise
+    
+    Promise.reject(3)
+    .finally(() => 4) // 返回一个等价于Promise.reject(3)的promise
+    
+    Promise.resolve(5)
+    .finally(() => { throw 6; }) // 返回一个等价于Promise.reject(6)的promise
+    
+    Promise.reject(7)
+    .finally(() => Promise.reject(8)) // 返回一个等价于Promise.reject(8)的promise
+
+
+
+#### 7. Promise中的rejected
+
+##### 7.1 rejected的来源
+
+- 返回一个状态为rejected的promise对象
+
+- **抛出错误（throw error）也会被当做是rejected**
+
+  如果在 then 方法的回调函数中抛出错误，那么 then 返回的 promise 也会变成 rejected，并且将抛出的==错误作为拒绝状态的回调函数的参数值==。如果没有 catch 处理函数，错误会被抛到全局。
+
+- **注意**：返回错误，并不会作为rejected，而是resolve
+
+  ```js
+  Promise.resolve()
+      .then(()=>{
+      return new Error('error')
+  })
+      .then(xxxx)
+  ```
+
+  这里会执行xxx的内容，因为存在返回值，所以状态是fullfilled。
+
+##### 7.2 rejected的捕获
+
+- promise中的rejected状态只有.then((),(rejected))、.catch()、.finally()能够捕获。如果遇到不能捕获的就一直传递。
+- 对于能够捕获异常的回调函数，他们的返回值的promise等同于.then()返回值的promise
+- 如果捕获到了异常，那么该异常不会继续向下传递。
+
+#### 9. <a name="async 和 await相关的执行顺序">async 和 await相关的执行顺序</a>
+
+##### 9.1 理解await和async的顺序
+
+> await function
+>
+> Code....
+
+=> 等价于 把他看做是promise 的链式调用，注意await不是new promise，而是then()的回调函数，因为我们通过返回值来确定promise的状态而不是要依据resolve和rejected来决定。
+
+```js
+.then(functon)
+.then(Code)
+```
+
+1. 将function的内容作为第一个then的回调函数，执行到这一步，我就按照then()里面回调函数的步骤来执行
+
+   - 执行同步代码
+
+   - 将微任务/宏任务加入到相应的队列
+
+   - **直接返回**（不需要等到宏任务和微任务执行完毕，就是按照同步的顺序执行）！！
+
+     返回Promise与.then()的完全一致。
+
+2. 根据返回的Promise的状态，将第二个then加入到微任务队列。
+
+注意：如果返回的Promise一直是pending状态，那么就不会加入到后面的内容。
+
+例如：下面的的代码段被包围在一个async函数中，但是2永远不会打印，因为await的状态一直是pending
+
+```js
+await new Promise(resovle=>{
+    console.log(1)
+})
+console.log(2)
+```
+
+**改写async**
+
+案例**1**：
+
+```python
+console.log(2); 
+async function s1() { 
+    console.log(7) 
+    await s2(); 
+    console.log(8); 
+} 
+asycn function s2() {
+    console.log(9); 
+} 
+s1(); 
+console.log(5); 这段函数的返回值
+```
+
+```python
+console.log(2);
+function s1() {
+    console.log(7)
+    return s2().then(() => {
+        console.log(8);
+    });
+}
+function s2() {
+    console.log(9);
+    return Promise.resolve();
+}
+s1().then(() => {
+    console.log(5);
+});
+```
+
+执行顺序比较明确：**2, 7, 9, 5, 8**。
+
+- 首先，整体代码是一个宏任务，它开始执行。
+- console.log(2) 打印出 2。
+- s1() 函数被调用，它返回一个 promise，并且把 console.log(5) 作为回调函数放入微任务队列中。
+- s1() 函数内部，console.log(7) 打印出 7。
+- s2() 函数被调用，它返回一个 promise，并且把 console.log(8) 作为回调函数放入微任务队列中。
+- s2() 函数内部，console.log(9) 打印出 9。
+- 整体代码结束，开始清空微任务队列。
+- console.log(8) 被执行，打印出 8。
+- console.log(5) 被执行，打印出 5。
+- 微任务队列清空完毕。
+
+案例**2**
+
+```js
+console.log(2);
+async function s1() {
+    console.log(7)
+    await s2();
+    console.log(8);
+    await s3();
+    console.log(11);
+}
+
+async function s2() {
+    console.log(9);
+}
+
+async function s3() {
+    console.log(10);
+    
+}
+
+console.log(5);
+```
+
+```javascript
+console.log(2);
+function s1() {
+    console.log(7)
+    return s2().then(() => {
+        console.log(8);
+        return s3().then(() => {
+            console.log(11);
+        });
+    });
+}
+
+function s2() {
+    console.log(9);
+    return Promise.resolve();
+}
+
+function s3() {
+    console.log(10);
+    return Promise.resolve();
+}
+
+console.log(5);
+
+s1();
+```
+
+打印顺序：**2, 5, 7, 9, 8, 10, 11**。
+
+案例**3**
+
+第六题：[灵题库-前端题库 (lingtiku.com)](https://www.lingtiku.com/quiz/detail/6)
+
+#### 10. async和await中的捕获错误
+
+> 如果await返回的是一个rejected的
+
+要判断 await 返回的 Promise 的状态，有两种方法：
+
+- 一种是使用 try/catch 语句，如果 await 的 Promise 被拒绝（rejected），那么 catch 块会捕获到拒绝的原因，并抛出异常。例如：
+
+```javascript
+try {
+  // Do some asynchronous operation that may throw an exception
+  await someAsyncOperation();
+}
+catch (error) {
+  // Handle the error
+}
+```
+
+- 另一种是使用 .then() 和 .catch() 方法，如果 await 的 Promise 被履行（resolved），那么 .then() 方法会接收到履行的值，并执行相应的回调函数。如果 await 的 Promise 被拒绝，那么 .catch() 方法会接收到拒绝的原因，并执行相应的回调函数。例如：
+
+```javascript
+await someAsyncOperation()
+.then(value => {
+  // Handle the resolved value
+})
+.catch(error => {
+  // Handle the rejected reason
+});
+```
+
+[这两种方法都可以用来判断 await 返回的 Promise 的状态，但是有一些区别](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await)[1](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Operators/await)：
+
+- try/catch 可以捕获所有异常，包括语法错误或类型错误等。.catch 只能捕获异步方法中 reject 的错误。
+- try/catch 可以在一个块中处理多个 await 表达式的异常，而 .catch 需要为每个 await 表达式单独处理。
+- try/catch 更符合同步代码的风格，而 .catch 更符合异步代码的风格。
+
+#### 11. 小问题
+
+- 在promise的使用中，如果.then()里面只有一个函数，但是.then之前的promise的状态是rejected，他会怎么办？
+
+  [根据我搜索到的信息，如果.then()里面只有一个函数，但是.then之前的promise的状态是rejected，那么这个函数不会被调用，而是会跳过这个.then()，直到找到下一个有onRejected参数的.then()或者.catch()](https://blog.csdn.net/u013967628/article/details/86569262)[1](https://blog.csdn.net/u013967628/article/details/86569262)[2](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then)[。如果没有找到任何处理rejected状态的回调函数，那么这个promise就会一直保持rejected状态，并且抛出错误](https://www.w3schools.com/Js/js_promise.asp)[3](https://www.w3schools.com/Js/js_promise.asp)[4](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/reject)[。你可以使用.catch()方法来捕获并处理错误](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then)[2](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then)。
+
+  意思是then并不会处理这个返回值，而是顺着promise链查找，直到找到catch或者then中存在执行错误的甘薯
+
+- 如果.then(xx).then()如果第一个.then没有返回值，那第二个.then接受到的result是什么？
+
+  [根据我搜索到的信息，如果.then()没有返回值，那么它会返回一个undefined的值，这个值会作为下一个.then()的参数](https://stackoverflow.com/questions/34094806/return-from-a-promise-then)[1](https://stackoverflow.com/questions/34094806/return-from-a-promise-then)[2](https://masteringjs.io/tutorials/fundamentals/then)[。也就是说，第二个.then()接收到的result是undefined。如果你想要传递一个有意义的值给下一个.then()，你需要在第一个.then()里面使用return语句](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then)[3](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then)。
+
+- Promise链式调用和微任务的结合题
+
+  **核心**：.then()中的回调函数会被放入微任务队列，遍历完所有.then()之后，再执行微任务队列中的回调函数
+
+  **题目**：如果三个.then（）相连，他们执行的函数分别打印1,2，3，也就是一一对应。其中第二个.then（）中建立了一个promise，并有两个.then（），分别打印，4， 5。请你描述微任务队列的顺序，并且说一下打印的顺序，假设他们返回的状态都是fulfilled
+
+  **解答**：如果三个.then()相连，他们执行的函数分别打印1,2，3，也就是一一对应。其中第二个.then()中建立了一个promise，并有两个.then()，分别打印，4， 5。那么微任务队列的顺序和打印的顺序是这样的：
+
+  - 首先，执行第一个.then()里面的代码，并打印1，并返回一个新的promise对象。
+  - 然后，将第二个.then()里面的回调函数加入到微任务队列中，等待第一个.then()返回的promise对象解决。
+  - 接着，将第三个.then()里面的回调函数加入到微任务队列中，等待第二个.then()返回的promise对象解决。
+  - 然后，在微任务队列中找到第二个.then()里面的回调函数，并执行它。这时候会创建并返回一个新的promise对象，并在这个promise对象里面定义了两个.then()。然后打印2。
+  - 然后，将这两个.then()里面的回调函数加入到微任务队列中，等待第二个.then()返回的promise对象解决。
+  - 然后，在微任务队列中找到第三个.then()里面的回调函数，并执行它。然后打印3。
+  - 然后，在微任务队列中找到第二个.then()返回的promise对象里面定义的两个.then()里面的回调函数，并依次执行它们。然后分别打印4和5。
+
+  所以最终打印出来是：1 2 3 4 5
+
+​	await的返回值是result或者是error
+
+## 手写Promise
+
+### 1. 实现状态和值的变化
+
+在Promise中，初始时状态为pending，当执行resolve的时候，状态变化fulfilled，执行reject的时候，状态变为rejected。
+
+**几个关键点**
+
+- 使用构造函数，初始化状态和值，以及执行executor函数
+- 修改Promise中resolve和reject的this指向
+- 只有在状态为pending的时候，才能修改状态和值，换句话说，执行完了resolve之后，就不能执行rejected
+
+```js
+class MyPromise {
+    static FULFILLED = 'fulfilled'
+    static REJECTED = 'rejected'
+    static PENDING = 'pending'
+    constructor(executor) {
+        /* 
+            new 一个Promise发生的事
+                1. 初始化Promise的状态和值
+                2. 执行传入到Promise的函数：executor
+        */
+        this.state = MyPromise.PENDING
+        this.value = null
+        /* promise需要两个参数：resolve函数和reject函数，这个是由promise本身来实现的 */
+        /* 要修改两个函数的this指向 */
+        executor(this.resolve.bind(this), this.reject.bind(this))
+    }
+    /* promise的两个方法 */
+    resolve(value){
+        /* 修改promise的状态(fulfilled)和值(value) */
+        if (this.state === MyPromise.PENDING){
+            this.state = MyPromise.FULFILLED
+            this.value = value
+        }
+    }
+
+    reject(error){
+        if (this.state === MyPromise.PENDING){
+            this.state = MyPromise.REJECTED
+            this.value = error 
+        }
+    }
+
+
+}
+```
+
+**测试**
+
+```js
+let p = new MyPromise((resolve, reject) => {
+    // resolve('解决')
+    reject('错误')
+})
+console.log(p)
+```
+
+### 2. 异常处理
+
+在执行器函数中，如果出现错误，会作为resolve来执行，resolve值为错误信息.
+
+我们可以使用try...catch来捕获错误。
+
+```js
+constructor(executor) {
+    /* 
+        new 一个Promise发生的事
+            1. 初始化Promise的状态和值
+            2. 执行传入到Promise的函数：executor
+    */
+    this.state = MyPromise.PENDING
+    this.value = null
+    /* promise需要两个参数：resolve函数和reject函数，这个是由promise本身来实现的 */
+    /* 要修改两个函数的this指向 */
+    try {
+        executor(this.resolve.bind(this), this.reject.bind(this))
+    } catch (error) {
+        this.reject(error)
+    }
+
+}
+```
+
+**测试**
+
+```js
+let p = new MyPromise((resolve, reject) => {
+    throw new Error('出现错误')
+})
+console.log(p)
+```
+
+**显示结果**
+
+一个promise对象，状态为statue，值为报错信息
+
+```js
+MyPromise {
+  state: 'rejected',
+  value: Error: 出现错误
+      at c:\Users\Rox7\Desktop\常用脚本\JS测试\promise2.js:44:11
+      at new MyPromise (c:\Users\Rox7\Desktop\常用脚本\JS测试\promise2.js:16:13)
+      at Object.<anonymous> (c:\Users\Rox7\Desktop\常用脚本\JS测试\promise2.js:41:9)
+      at Module._compile (node:internal/modules/cjs/loader:1256:14)
+      at Module._extensions..js (node:internal/modules/cjs/loader:1310:10)
+      at Module.load (node:internal/modules/cjs/loader:1119:32)
+      at Module._load (node:internal/modules/cjs/loader:960:12)
+      at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:81:12)
+      at node:internal/main/run_main_module:23:47
+}
+```
+
+### 3. then方法
+
+then方法是promise的一个方法，接收两个参数，onFuifilled和onRejected；
+
+当状态为fulfilled的时候，执行onFulfilled，反之执行onRejected；
+
+如果不传递参数，默认为一个空函数。
+
+#### 基础的then方法
+
+```js
+    then(onFulfilled, onRejected){
+        if (this.state === MyPromise.FULFILLED){
+            onFulfilled(this.value)  // 此时的value等于执行完resolve的value
+        }
+        if (this.state === MyPromise.REJECTED){
+            onRejected(this.value)
+        }
+    }
+```
+
+**测试1**
+
+```js
+let p = new MyPromise((resolve, reject) => {
+    resolve(1)
+})
+p.then((res) => {console.log(res)}, (error) => {console.log(error)})
+console.log(p)
+```
+
+**结果1**
+
+顺利打印1
+
+```js
+1
+MyPromise { state: 'fulfilled', value: 1 }
+```
+
+**测试2**
+
+```js
+let p = new MyPromise((resolve, reject) => {
+    reject(1)
+})
+p.then((res) => {console.log(res)}, (error) => {console.log(error)})
+console.log(p)
+```
+
+**结果2**
+
+```js
+1
+MyPromise { state: 'rejected', value: 1 }
+```
+
+#### 非函数参数的处理
+
+进行判断并转换
+
+```js
+    then(onFulfilled, onRejected){
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : () => {}
+        onRejected = typeof onRejected === 'function' ? onRejected: () => {}
+        if (this.state === MyPromise.FULFILLED){
+            onFulfilled(this.value)  // 此时的value等于执行完resolve的value
+        }
+        if (this.state === MyPromise.REJECTED){
+            onRejected(this.value)
+        }
+    }
+```
+
+### 4. 异步操作
+
+#### 上述功能的问题
+
+1. then不是异步的，而是同步执行
+
+#### then是异步的微任务
+
+执行完同步之后，再执行then内的函数
+
+我们可以在执行onFulfilled或者onRejected的时候，将其添加到微任务队列。
+
+```js
+then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : () => { }
+        onRejected = typeof onRejected === 'function' ? onRejected : () => { }
+        if (this.state === MyPromise.FULFILLED) {
+            // 此时的value等于执行完resolve的value
+            queueMicrotask(() => {
+                onFulfilled(this.value)
+            })
+        }
+        if (this.state === MyPromise.REJECTED) {
+            queueMicrotask(() => {
+                onRejected(this.value)
+            })
+        }
+    }
+```
+
+**测试**
+
+```js
+console.log(1)
+let p = new MyPromise((resolve, reject) => {
+    console.log(2)
+    resolve(4)
+})
+p.then((res) => { console.log(res) }, (error) => { console.log(error) })
+console.log(3)
+```
+
+**结果**
+
+```js
+1
+2
+3
+4
+```
+
+## 5. 回调的保存
+
+### 代码的问题1
+
+#### pending状态的处理
+
+在上述代码中，如果resolve中包裹了setTimeOut，例如：
+
+```js
+console.log(1)
+let p = new MyPromise((resolve, reject) => {
+    console.log(2)
+    setTimeout(() => {
+        resolve(4)
+    })
+})
+p.then((res) => { console.log(res) }, (error) => { console.log(error) })
+console.log(3)
+```
+
+ 结果： 1 2 3
+
+分析原因，4为什么没有被输入，因为我们首先要执行then，但此时状态为pending，then中没有处理的逻辑，并不会加入到微任务队列，导致及时状态变化，也不会打印。
+
+### 处理then中pending状态的逻辑
+
+当then中状态为pending的时候，说明还不能执行then传递的函数，我们可以保存到一个数组中，当promise中的resolve或者reject被执行的时候，再运行then中的函数。
+
+**正常流程**：new promise -> 运行resolve -> 状态变化 -> 执行then中的函数
+
+**异步的resolve**：new promise -> 状态未变化 -> 将then中的函数保存 -> 执行resolve --> 在函数体中执行保存的then中的函数。
+
+只不过这里的为什么用数组的方式，我不太懂。
+
+```js
+/* 当状态为pending的时候，存储回调函数*/
+if (this.state === MyPromise.PENDING) {
+    this.callbacks.push({
+        onFulfilled,
+        onRejected
+    })
+}
+/ --------------------------------- /
+/* 执行resolve和reject的时候，执行相应的回调 */
+    /* promise的两个方法 */
+    resolve(value) {
+        /* 修改promise的状态(fulfilled)和值(value) */
+        if (this.state === MyPromise.PENDING) {
+            this.state = MyPromise.FULFILLED
+            this.value = value
+        }
+        /* 执行回调函数 */
+        this.callbacks.forEach((funcObj) => {
+            funcObj.onFulfilled(this.value)
+        })
+    }
+
+    reject(error) {
+        if (this.state === MyPromise.PENDING) {
+            this.state = MyPromise.REJECTED
+            this.value = error
+        }
+        /* 执行回调函数 */
+        this.callbacks.forEach((funcObj) => {
+            funcObj.onRejected(this.value)
+        })
+    }
+```
+
+**测试代码**
+
+```js
+console.log(1)
+let p = new MyPromise((resolve, reject) => {
+    console.log(2)
+    setTimeout(() => {
+        resolve(4)
+    })
+})
+p.then((res) => { console.log(res) }, (error) => { console.log(error) })
+console.log(3)
+```
+
+**结果**
+
+```js
+1 2 3 4
+```
+
+### 代码问题2
+
+#### resolve是异步的
+
+```js
+console.log(1)
+let p = new MyPromise((resolve, reject) => {
+    console.log(2)
+    setTimeout(() => {
+        resolve(4)
+        console.log(5)
+    })
+})
+p.then((res) => { console.log(res) }, (error) => { console.log(error) })
+console.log(3)
+```
+
+#### 代码结果
+
+```js
+1 2 3 4 5
+```
+
+而实际的promise结果应该是
+
+```js
+1 2 3 5 4
+```
+
+因为resolve是异步的，先执行同步代码输出5
+
+### 将resolve设置为异步
+
+这样当就会先执行执行器中的同步代码，再执行then中的微任务
+
+```js
+/* promise的两个方法 */
+    resolve(value) {
+        /* 修改promise的状态(fulfilled)和值(value) */
+        if (this.state === MyPromise.PENDING) {
+            this.state = MyPromise.FULFILLED
+            this.value = value
+        }
+        queueMicrotask(() => {
+            /* 执行回调函数 */
+            this.callbacks.forEach((funcObj) => {
+                funcObj.onFulfilled(this.value)
+            })
+        })
+
+    }
+
+    reject(error) {
+        if (this.state === MyPromise.PENDING) {
+            this.state = MyPromise.REJECTED
+            this.value = error
+        }
+        queueMicrotask(() => {
+            /* 执行回调函数 */
+            this.callbacks.forEach((funcObj) => {
+                funcObj.onRejected(this.value)
+            })
+        })
+
+    }
+```
+
