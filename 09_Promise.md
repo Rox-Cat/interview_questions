@@ -666,11 +666,11 @@ console.log(3)
 4
 ```
 
-## 5. 回调的保存
+### 5. 回调的保存
 
-### 代码的问题1
+#### 代码的问题1
 
-#### pending状态的处理
+##### pending状态的处理
 
 在上述代码中，如果resolve中包裹了setTimeOut，例如：
 
@@ -690,7 +690,7 @@ console.log(3)
 
 分析原因，4为什么没有被输入，因为我们首先要执行then，但此时状态为pending，then中没有处理的逻辑，并不会加入到微任务队列，导致及时状态变化，也不会打印。
 
-### 处理then中pending状态的逻辑
+#### 处理then中pending状态
 
 当then中状态为pending的时候，说明还不能执行then传递的函数，我们可以保存到一个数组中，当promise中的resolve或者reject被执行的时候，再运行then中的函数。
 
@@ -716,22 +716,24 @@ if (this.state === MyPromise.PENDING) {
         if (this.state === MyPromise.PENDING) {
             this.state = MyPromise.FULFILLED
             this.value = value
-        }
-        /* 执行回调函数 */
-        this.callbacks.forEach((funcObj) => {
+                    /* 执行回调函数 */
+        	this.callbacks.forEach((funcObj) => {
             funcObj.onFulfilled(this.value)
         })
+        }
+
     }
 
     reject(error) {
         if (this.state === MyPromise.PENDING) {
             this.state = MyPromise.REJECTED
             this.value = error
-        }
-        /* 执行回调函数 */
-        this.callbacks.forEach((funcObj) => {
-            funcObj.onRejected(this.value)
+            /* 执行回调函数 */
+       		this.callbacks.forEach((funcObj) => {
+            	funcObj.onRejected(this.value)
         })
+        }
+
     }
 ```
 
@@ -755,9 +757,9 @@ console.log(3)
 1 2 3 4
 ```
 
-### 代码问题2
+#### 代码问题2
 
-#### resolve是异步的
+##### resolve是异步的
 
 ```js
 console.log(1)
@@ -772,7 +774,7 @@ p.then((res) => { console.log(res) }, (error) => { console.log(error) })
 console.log(3)
 ```
 
-#### 代码结果
+##### 代码结果
 
 ```js
 1 2 3 4 5
@@ -786,7 +788,7 @@ console.log(3)
 
 因为resolve是异步的，先执行同步代码输出5
 
-### 将resolve设置为异步
+#### 将resolve设置为异步
 
 这样当就会先执行执行器中的同步代码，再执行then中的微任务
 
@@ -797,28 +799,422 @@ console.log(3)
         if (this.state === MyPromise.PENDING) {
             this.state = MyPromise.FULFILLED
             this.value = value
-        }
-        queueMicrotask(() => {
-            /* 执行回调函数 */
-            this.callbacks.forEach((funcObj) => {
-                funcObj.onFulfilled(this.value)
+            queueMicrotask(() => {
+                /* 执行回调函数 */
+                this.callbacks.forEach((funcObj) => {
+                    funcObj.onFulfilled(this.value)
+                })
             })
-        })
-
+        }
     }
 
     reject(error) {
         if (this.state === MyPromise.PENDING) {
             this.state = MyPromise.REJECTED
             this.value = error
-        }
-        queueMicrotask(() => {
-            /* 执行回调函数 */
-            this.callbacks.forEach((funcObj) => {
-                funcObj.onRejected(this.value)
+            queueMicrotask(() => {
+                /* 执行回调函数 */
+                this.callbacks.forEach((funcObj) => {
+                    funcObj.onRejected(this.value)
+                })
             })
+        }
+    }
+```
+
+### 6. then的链式调用
+
+then方法的返回值应该是一个promise的对象，而promise对象的值和状态区取决于：
+
+- 如果then中的回调(onFulfilled/onRejected)返回值是promise，那么then返回的promise的值和状态均为返回值的promise
+- 如果返回的不是上述内容，那么值为then的回调的返回值，状态为resolve
+
+**以onFulfilled为例：**
+
+- 在then函数中返回这个对象，因为new的时候，executor会立即执行，并且使用的是箭头函数，所以此时其中的this指向第一个promise，可以使用它的状态和值。
+- 获取onFulfilled的结果之后，判断是不是Mypromise的实例，如果是，那么执行`res.then(resolve, reject)`，这句话的含义是，如果res代表的promise的状态为fulfilled的，那么执行resolve，then返回的promise的状态为fulfilled的，同时res.then会传递res的值到对应的回调函数中。因此返回的promise的值也被传入到了resolve中。
+
+```js
+return new MyPromise((resolve, reject) => {
+    /* 状态为fulfilled，执行onFulfilled */
+    if (this.status === MyPromise.FULFILLED) {
+        queueMicrotask(() => {
+            let res = onFulfilled(this.value)
+            if (res instanceof MyPromise){
+                res.then(resolve, reject)
+            } else {
+                resolve(res)
+            }
+        })
+    }
+}
+```
+
+将上述代码进行封装为一个函数：`parse`
+
+```js
+    parse(res, resolve, reject) {
+        // console.log(res)
+        if (res instanceof MyPromise) {
+            res.then(resolve, reject)
+        } else {
+            resolve(res)
+        }
+    }
+```
+
+**整体的代码**
+
+其中再pending的状态中，要再封装为一个函数，将其执行
+
+```js
+then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : () => { return this }
+        onRejected = typeof onRejected === 'function' ? onRejected : () => { return this }
+        /* 该promise的状态和值取决于then的回调的返回值 */
+        return new MyPromise((resolve, reject) => {
+            if (this.status === MyPromise.PENDING) {
+                /* 将要执行的回调放入一个数组中，等resolve或者reject执行的时候再运行 */
+                this.callbacks.push({
+                    onFulfilled: () => {
+                        this.parse(onFulfilled(this.value), resolve, reject)
+                    },
+                    onRejected: (() => {
+                        this.parse(onRejected(this.value), resolve, reject)
+                    })
+                })
+            }
+            /* 状态为fulfilled，执行onFulfilled */
+            if (this.status === MyPromise.FULFILLED) {
+                queueMicrotask(() => {
+                    this.parse(onFulfilled(this.value), resolve, reject)
+                })
+
+            }
+            if (this.status === MyPromise.REJECTED) {
+                queueMicrotask(() => {
+                    this.parse(onRejected(this.value), resolve, reject)
+                })
+            }
         })
 
     }
 ```
 
+**测试**
+
+```js
+console.log(1)
+let p = new MyPromise((resolve, reject) => {
+    console.log(2)
+    resolve('成功')
+})
+p.then((res) => { console.log(res) 
+    return new MyPromise((resolve, reject) => {
+        reject('第一个then，失败')
+        // resolve('第一个then，成功')
+    })
+}, (error) => {
+    return new MyPromise((resolve, reject) => {
+        resolve('ok')
+    })
+}).then((res) => {
+    console.log('链式调用成功')
+    console.log(res)
+}, () => {
+    console.log('失败的调用成功')
+})
+```
+
+### 7. 异常处理
+
+在promise中，如果执行器中出现错误会转到reject中，同理，在then中出现错误，返回的promise也是会rejected的状态。
+
+我们可以在parse中添加异常处理操作：
+
+修改了parse函数的逻辑，将res的获取过程添加到了try中，这样如果回调中出现问题，那么就可以成功捕获
+
+```js
+parse(callback, resolve, reject) {
+    try {
+        let res = callback(this.value)
+        if (res instanceof MyPromise) {
+            res.then(resolve, reject)
+        } else {
+            resolve(res)
+        }
+    } catch (error) {
+        reject(error)
+    }
+}
+```
+
+测试：
+
+```js
+console.log(1)
+let p = new MyPromise((resolve, reject) => {
+    console.log(2)
+    resolve('成功')
+})
+p.then((res) => {
+    console.log(a)
+}).then((res) => {
+    console.log('链式调用成功')
+    console.log(res)
+}, (error) => {
+    console.log(error + "捕获到异常")
+    console.log('失败的调用成功')
+})
+```
+
+### 8. then的透值
+
+如果then的参数不会函数，那么会将上一个promise传递下去，而不会在then中更新为别的.
+
+下列代码的结果为打印：'resolve传递的值'。其中then(1)无效
+
+```js
+let p = new Promise((resolve, reject) => {
+    resolve('resolve传递的值')
+})
+p.then(1).then(res => {
+    console.log(res)
+})
+```
+
+实现:将上一个promise返回即可。
+
+```js
+onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : () => { return this }
+onRejected = typeof onRejected === 'function' ? onRejected : () => { return this }
+```
+
+### 9. catc方法
+
+等价于then中onFulfilled为undefined
+
+```js
+catch(onRejected){
+    return this.then(undefined, onRejected)
+}
+```
+
+### 10. finally方法
+
+不管状态为fulfilled还是rejected都执行
+
+```js
+finally(func){
+    this.then(func, func)
+}
+```
+
+
+
+## 手写promise常用方法
+
+### Promise.reslove(value)
+
+返回的一个promise，状态为fulfilled，值为value。对于参数为promise的处理与then基本类似
+
+```js
+static resolve(value) {
+    return new MyPromise((resolve, reject) => {
+        if (value instanceof MyPromise) {
+            value.then(resolve, reject)
+        } else {
+            resolve(value)
+        }
+    })
+}
+```
+
+测试：
+
+```js
+MyPromise.resolve(new MyPromise((resolve) => {
+    resolve(1)
+})).then(res => {
+    console.log(res)
+})
+```
+
+输出：
+
+```js
+1
+```
+
+测试：
+
+```js
+MyPromise.resolve(new MyPromise((resolve, reject) => {
+    reject('error')
+})).then(res => {
+    console.log(res)
+}, error => { console.log(error) })
+
+```
+
+输出: error
+
+### Promise.reject(value)
+
+```js
+static reject(error){
+    return new MyPromise((resolve, reject) => {
+        if (value instanceof MyPromise){
+            value.then(resolve, reject)
+        } else {
+            reject(error)
+        }
+    })
+}
+```
+
+### Promise.all(array)方法
+
+参数是一个由promise对象组成的数组，返回一个promise对象，值取决于：
+
+- 全部由pending -> fulfilled，输出数组，值为promise的值
+- 其中一个由pending -> rejected，输出值
+
+```js
+    static all(arrs) {
+        return new MyPromise((resolve, reject) => {
+            if (!Array.isArray(arrs)) {
+                throw new Error('arrs 必须是一个函数')
+            }
+            let resolveCnt = 0
+            let result = []
+            for (let i = 0; i < arrs.length; i++) {
+                arrs[i].then(value => {
+                    result[i] = value
+                    resolveCnt += 1
+                    if (resolveCnt === arrs.length) {
+                        resolve(result)
+                    }
+                }, error => {
+                    reject(error)
+                })
+            }
+        })
+    }
+}
+```
+
+测试：
+
+```js
+let p1 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(1)
+    }, 1000)
+})
+let p2 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(1)
+    }, 1000)
+})
+let p3 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        reject(2)
+    }, 500)
+})
+```
+
+结果：
+
+```js
+2
+```
+
+测试：
+
+```js
+let p1 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(1)
+    }, 1000)
+})
+let p2 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(1)
+    }, 1000)
+})
+let p3 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(2)
+    }, 500)
+})
+```
+
+结果：
+
+```js
+MyPromise.all([p1, p2, p3]).then((value) => {
+    console.log(value)
+}, error => {
+    console.log(error)
+})
+
+```
+
+### Promise.race(arrs)
+
+返回一个promise对象，值和状态取决于第一个变化的promise
+
+```js
+static race(arrs){
+    return new MyPromise((resolve, reject) => {
+        for (let i = 0; i< arrs.length; i++){
+            arrs[i].then(value => {
+                resolve(value)
+            }, error => {
+                reject(error)
+            })
+        }
+    })
+}
+```
+
+测试:
+
+```js
+let p1 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(1)
+    }, 1000)
+})
+let p2 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(1)
+    }, 1000)
+})
+let p3 = new MyPromise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(2)
+    }, 500)
+})
+
+MyPromise.race([p1, p2, p3]).then((value) => {
+    console.log(value)
+}, error => {
+    console.log(error)
+})
+```
+
+结果:2 
+
+## 应用场景
+
+> [前端 Promise 常见的应用场景 - 掘金 (juejin.cn)](https://juejin.cn/post/6844904131702833159)
+>
+> [Promise常使用的业务场景 - 掘金 (juejin.cn)](https://juejin.cn/post/7054083495303479327)
+>
+> [Promise应用场景总结 - 掘金 (juejin.cn)](https://juejin.cn/post/7090102572966477861)
+
+Promise.all方法的常用场景是处理多个并行的异步操作，例如同时发送多个网络请求，然后等待所有请求完成后再进行下一步操作。
+
+Promise.race方法的常用场景是处理竞争或超时的情况，例如同时发送多个网络请求，然后只取最快返回的结果，或者设置一个超时时间，如果在规定时间内没有返回结果，则抛出错误。

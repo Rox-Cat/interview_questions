@@ -768,7 +768,7 @@ Function.prototype.mybind = function (context, ...args1) {
 }
 ```
 
-# 八、 面向对象
+# 八、面向对象
 
 ### 对象创建的方式有哪些？
 
