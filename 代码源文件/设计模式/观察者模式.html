@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        /* 被观察的对象 */
+        class Subject {
+            constructor() {
+                this.observers = [] // 观察者列表 
+            }
+
+            // 添加观察者
+            add(observer) {
+                this.observers.push(observer)
+            }
+
+            // 通知方法：被观察对象改变 -> 执行通知方法 -> 观察者执行相应的操作
+            notify() {
+                this.observers.forEach(item => {
+                    item.update()
+                })
+            }
+            // 移除观察者
+            remove(observer) {
+                this.observers = this.observers.filter(item => {
+                    return item !== observer
+                })
+            }
+        }
+
+        // 观察者类，用于创建观察者实例
+        class Observer {
+            constructor(name) {
+                this.name = name
+            }
+            update() {
+                console.log('更新', this.name)
+            }
+        }
+
+        const subject = new Subject()
+        const observer1 = new Observer('张三')
+        const observer2 = new Observer('李四')
+
+        subject.add(observer1)
+        subject.add(observer2)
+        subject.notify()
+        subject.remove(observer1)
+        subject.notify()
+    </script>
+</body>
+
+</html>

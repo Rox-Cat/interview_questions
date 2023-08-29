@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        let salesOffices = {
+            clientList: [],
+            listen: function (fn) {
+                this.clientList.push(fn)
+            },
+            trigger: function(){
+                for (let fn of this.clientList){
+                    fn.apply(this, arguments)
+                }
+            }
+        }
+
+        salesOffices.listen(function(price, squareMeter){
+            console.log(`价格：${price}, 面积：${squareMeter}`)
+        })
+        salesOffices.listen(function(price, squareMeter){
+            console.log(`价格：${price}, 面积：${squareMeter}`)
+        })
+        salesOffices.listen(function(price, squareMeter){
+            console.log(`价格：${price}, 面积：${squareMeter}`)
+        })
+
+        salesOffices.trigger(1000, '100')
+    </script>
+</body>
+
+</html>

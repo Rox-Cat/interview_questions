@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>观察者模式案例</title>
+</head>
+<style>
+    .box {
+        display: flex;
+        height: 500px;
+    }
+
+    .box .left {
+        width: 150px;
+        background-color: yellow;
+    }
+
+    .box .right {
+        flex: 1;
+        background-color: skyblue;
+    }
+</style>
+
+<body>
+    <header class="header">首页</header>
+    <div class="box">
+        <div class="left">
+            <ul>
+                <li>首页</li>
+                <li>用户管理</li>
+                <li>权限管理</li>
+                <li>新闻管理</li>
+            </ul>
+        </div>
+        <div class="right">
+            <div class="bread"></div>
+        </div>
+    </div>
+
+    <script>
+        /* 被观察的对象 */
+        class Subject {
+            constructor() {
+                this.observers = [] // 观察者列表 
+            }
+
+            // 添加观察者
+            add(observer) {
+                this.observers.push(observer)
+            }
+
+            // 通知方法：被观察对象改变 -> 执行通知方法 -> 观察者执行相应的操作
+            notify(title) {
+                this.observers.forEach(item => {
+                    item.update(title)
+                })
+            }
+            // 移除观察者
+            remove(observer) {
+                this.observers = this.observers.filter(item => {
+                    return item !== observer
+                })
+            }
+        }
+
+        // 观察者类，用于创建观察者实例
+        class Observer {
+            constructor(name) {
+                this.ele = document.querySelector(name)
+            }
+            update(title) {
+                this.ele.innerHTML = title
+            }
+        }
+
+        const subject = new Subject()
+        const observer1 = new Observer('.bread')
+        const observer2 = new Observer('.header')
+
+        subject.add(observer1)
+        subject.add(observer2)
+
+        let oli = document.querySelectorAll('.left li')
+        for (let i = 0; i < oli.length; i++) {
+            oli[i].onclick = function () {
+                subject.notify(oli[i].innerHTML) // 无差别通知？
+            }
+        }
+    </script>
+</body>
+
+</html>

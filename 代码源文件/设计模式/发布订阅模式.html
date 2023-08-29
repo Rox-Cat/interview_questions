@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        const pubSub = {
+            message: {},
+
+            // 通知订阅者
+            publish: function (type, data) {
+                if (this.message[type]) {
+                    this.message[type].forEach(item => item(data))
+                } else {
+                    throw new Error('不存在该类型的订阅')
+                }
+            },
+
+            // 收集订阅者
+            // key: 事件， value: 回调函数(订阅者，要执行的内容)
+            subscribe: function (type, func) {
+                if (!this.message[type]) {
+                    this.message[type] = [func]
+                } else {
+                    this.message[type].push(func)
+                }
+            },
+
+            /* 
+                移除订阅者
+                1. 存在该类订阅
+                    - func存在 -> 取消该类型订阅中的func
+                    - func不存在 -> 取消所有该类型的订阅
+                2. 不存在该类订阅
+                    报错
+            */
+            unsubscribe: function (type, func) {
+                if (this.message[type]) {
+                    if (func) {
+                        this.message[type] = this.message[type]
+                            .filter(item => item !== func)
+                    } else {
+                        delete this.message[type]
+                    }
+                } else {
+                    throw new Error('无该订阅')
+                }
+            }
+        }
+
+        /* 订阅者 -> 状态变化通知订阅者 */
+        function testA(data) {
+            console.log('A' + data)
+        }
+        function testB(data) {
+            console.log('B' + data)
+        }
+
+        pubSub.subscribe("AAA", testA)
+        pubSub.subscribe("AAA", testB)
+        pubSub.subscribe("BBB", testB)
+        pubSub.publish("AAA", 'Ok')
+        pubSub.unsubscribe('AAA', testA)
+        console.log('------移除testA------')
+        pubSub.publish('AAA', 'Ok')
+
+    </script>
+</body>
+
+</html>

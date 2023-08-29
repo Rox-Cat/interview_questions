@@ -760,7 +760,7 @@ controller.abort()
 
 
 
-> （1） 无法读取非同源网页的 Cookie、LocalStorage 。
+> （1） 无法读取非同源网页的 Cookie、LocalStorage。
 > （2） 无法接触非同源网页的 DOM。
 > （3） 无法向非同源地址发送 AJAX 请求（可以发送，但浏览器会拒绝接受响应）。
 
@@ -784,7 +784,7 @@ controller.abort()
 
 ##### 1. JSONP的原理
 
-由于浏览器同源策略的限制，网页中无法通过 Ajax 请求非同源的接口数据。但是 <script> 标签不受浏览器同源策略的影响，可以通过 src 属性，请求非同源的 js 脚本。
+由于浏览器同源策略的限制，网页中无法通过 Ajax 请求非同源的接口数据。但是 <script> 标签不受浏览器同源策略的影响，可以通过 src 属性（src属性可以设置url，表示请求地址），请求非同源的 js 脚本。通过Content-Type: text/javascript来设置返回文件的类型，<a href="#src返回">默认是JavaScript</a>。
 
 因此，JSONP 的实现原理，就是通过 `<script>` 标签的 src 属性，请求跨域的数据接口，并通过**函数调用**的形式，接收跨域接口响应回来的数据。
 
@@ -803,7 +803,7 @@ controller.abort()
 
 - 动态创建script标签，设置其src属性为需要请求的URL，其中包括传递给后台的<font color='red'>参数</font>和<font color='red'>回调函数名称</font>。
 
-  ```js
+  ```html
   <script src="http://ajax.frontend.itheima.net:3006/api/jsonp?callback=success&name=zs&age=20"></script>
   ```
 
@@ -834,18 +834,18 @@ CORS 的工作原理是通过在服务器端设置一些特殊的 HTTP 头来允
 
 ##### 3. 请求过程
 
-1. 浏览器向服务器发送跨域请求，并在请求头中包含 Origin 头部。
+1. 浏览器向服务器发送跨域请求，并在请求头中包含 Origin 头部【协议+域名+端口】。
 2. 服务器收到请求后检查 Origin 头部，并确定是否允许该请求访问资源。
 3. 如果服务器允许该请求，那么它会在响应中包含 Access-Control-Allow-Origin 和 Access-Control-Allow-Methods 等头部，以授权该请求。
 4. 浏览器收到响应后会检查 Access-Control-Allow-Origin 和 Access-Control-Allow-Methods 等头部，以确定该请求是否被授权。如果该请求被授权，那么浏览器就会将响应传递给 JavaScript 代码，并允许它访问资源。
 
 #### 详解服务器代理
 
-> [代理（proxy）跨域_代理跨域_奥特曼　的博客-CSDN博客](https://blog.csdn.net/m0_46846526/article/details/118151968)
+> [代理（proxy）跨域\_代理跨域\_奥特曼　的博客-CSDN博客](https://blog.csdn.net/m0_46846526/article/details/118151968)
 
 ##### 1. 本质
 
-在服务器之间进行数据交互的过程中不存在跨域问题，因为服务器之间是通过 IP 地址和端口号来进行通信的，而不是通过域名。跨域问题主要是出现在客户端浏览器与服务器之间的交互中。
+在服务器之间进行数据交互的过程中不存在跨域问题，因为服务器之间是通过 IP 地址和端口号来进行通信的，而不是通过域名。跨域问题主要是出现在**客户端浏览器**与**服务器**之间的交互中。
 
 ##### 2. 代理的介绍
 
@@ -858,6 +858,59 @@ CORS 的工作原理是通过在服务器端设置一些特殊的 HTTP 头来允
 总的来说，正向代理和反向代理的区别在于代理的方向不同，正向代理是客户端找代理，反向代理是代理找服务器。同时，反向代理更多的是用于服务器端的负载均衡和安全等问题，而正向代理更多的是用于客户端的网络访问问题。
 
 
+
+# 参考文件
+
+1. <span id="src返回">src返回内容</span>
+
+[您问的是当html中script请求src的内容之后，返回的内容是什么呢？是当做JavaScript来执行吗？这是一个很有意义的问题，因为script标签是用于在HTML文档中嵌入或引用可执行的代码或数据的](https://www.w3schools.com/TAGS/att_script_src.asp)[1](https://www.w3schools.com/TAGS/att_script_src.asp)[2](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script)[3](https://www.runoob.com/tags/att-script-src.html)。
+
+[script标签的src属性可以指定一个外部脚本文件的URL，例如``](https://www.w3schools.com/TAGS/att_script_src.asp)[1](https://www.w3schools.com/TAGS/att_script_src.asp)[2](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script)[3](https://www.runoob.com/tags/att-script-src.html)[。当浏览器遇到这样的script标签时，它会向指定的URL发送一个HTTP请求，获取外部脚本文件的内容](http://www.example.com/example.js)[4](http://www.example.com/example.js) 。
+
+[返回的内容是什么呢？这取决于外部脚本文件的类型和内容。一般来说，外部脚本文件的类型可以通过HTTP响应头中的Content-Type字段来指定，例如`Content-Type: text/javascript`表示该文件是JavaScript类型](http://www.example.com/example.js)[4](http://www.example.com/example.js)[ 。如果没有指定Content-Type字段，浏览器会根据文件扩展名或内容来推断文件类型](http://www.example.com/example.js)[4](http://www.example.com/example.js) 。
+
+[如果外部脚本文件是JavaScript类型，那么返回的内容就是JavaScript代码，浏览器会将其当做JavaScript来执行](https://www.w3schools.com/TAGS/att_script_src.asp)[1](https://www.w3schools.com/TAGS/att_script_src.asp)[2](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script)[3](https://www.runoob.com/tags/att-script-src.html)。例如：
+
+```js
+// myscripts.js
+console.log("Hello, world!"); // 这是一行JavaScript代码
+```
+
+```html
+<!-- index.html -->
+<script src="myscripts.js"></script> <!-- 浏览器会请求myscripts.js，并执行其中的JavaScript代码 -->
+```
+
+[如果外部脚本文件不是JavaScript类型，那么返回的内容就可能是其他类型的代码或数据，浏览器会根据不同的情况来处理](https://www.w3schools.com/TAGS/att_script_src.asp)[1](https://www.w3schools.com/TAGS/att_script_src.asp)[2](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script)[3](https://www.runoob.com/tags/att-script-src.html)。例如：
+
+```glsl
+// myshader.glsl
+void main() {
+  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // 这是一行GLSL代码
+}
+```
+
+```html
+<!-- index.html -->
+<script id="shader" src="myshader.glsl" type="x-shader/x-fragment"></script> <!-- 浏览器会请求myshader.glsl，并将其作为文本保存在script元素中 -->
+<script>
+  // 获取script元素
+  let script = document.getElementById("shader");
+  // 获取script元素中的文本内容
+  let source = script.textContent;
+  // 使用source作为WebGL着色器程序的源码
+</script>
+```
+
+以上是我为您解答的关于html中script请求src的内容之后，返回的内容是什么呢？是当做JavaScript来执行吗？的问题。希望对您有所帮助。如果您想了解更多关于script标签和src属性的内容，您可以点击以下链接查看相关的文章：
+
+- [HTML script src Attribute - W3Schools](https://www.w3schools.com/TAGS/att_script_src.asp)^)
+- [: The Script element - HTML: HyperText Markup Language | MDN - MDN Web Docs](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script)^)
+- [HTML script src 属性 | 菜鸟教程](https://www.runoob.com/tags/att-script-src.html)^)
+- How does the browser know the type of a script if the Content-Type header is missing? - Stack Overflow^)
+- How does the browser know the type of a script if the Content-Type header is missing? - Stack Overflow^)
+
+如果您还有其他问题或想法，欢迎继续和我交流。😊
 
 
 

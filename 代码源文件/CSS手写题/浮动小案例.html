@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .floatleft {
+            float: left;
+        }
+
+        .floatright {
+            float: right;
+        }
+
+        .clearfloat::after {
+            content: " ";
+            display: block;
+            clear: both;
+        }
+
+        .container {
+            width: 960px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .logo,
+        .banner1,
+        .banner2 {
+            height: 80px;
+            background-color: #ccc;
+            line-height: 80px;
+        }
+
+        .logo {
+            width: 200px;
+        }
+
+        .banner1 {
+            width: 540px;
+            margin: 0 10px;
+        }
+
+        .banner2 {
+            width: 200px;
+        }
+
+        .menu {
+            height: 30px;
+            margin: 10px 0px;
+            background-color: #ccc;
+        }
+
+        .item {
+            border: 1px solid black;
+            margin-right: 10px;
+            /* padding-top: 30px; */
+        }
+
+        .item1,
+        .item2 {
+            height: 198px;
+            width: 368px;
+        }
+
+        .item3 {
+            width: 178px;
+            height: 198px;
+            margin-top: 10px;
+        }
+
+        .item7 {
+            width: 198px;
+            height: 128px;
+            margin-right: 0px;
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            height: 60px;
+            background-color: #ccc;
+            line-height: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="top clearfloat">
+            <div class="logo floatleft">logo</div>
+            <div class="banner1 floatleft">banner1</div>
+            <div class="banner2 floatleft">banner2</div>
+        </div>
+        <div class="menu">菜单</div>
+        <div class="body clearfloat">
+            <div class="bodyleft floatleft">
+                <div class="bodylefttop clearfloat">
+                    <div class="item item1 floatleft">项目1</div>
+                    <div class="item item2 floatleft">项目2</div>
+                </div>
+                <div class="bodyleftdown clearfloat">
+                    <div class="item item3 floatleft">项目3</div>
+                    <div class="item item3 floatleft">项目4</div>
+                    <div class="item item3 floatleft">项目5</div>
+                    <div class="item item3 floatleft">项目6</div>
+                </div>
+            </div>
+            <div class="bodyright floatleft">
+                <div class="item item7">项目7</div>
+                <div class="item item7">项目8</div>
+                <div class="item item7">项目9</div>
+            </div>
+        </div>
+        <div class="footer">页脚</div>
+    </div>
+
+</body>
+
+</html>
