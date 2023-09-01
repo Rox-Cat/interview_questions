@@ -8,10 +8,11 @@ const fn = url => {
     })
 };
 
+/* 不需要收集结果 */
 function limitQueue(urls, limit) {
     // 完成任务数
     let i = 0; // 闭包
-    // 填充满执行队列
+    // 填充满执行队列，填充limit个
     for (let excuteCount = 0; excuteCount < limit; excuteCount++) {
         run();
     }

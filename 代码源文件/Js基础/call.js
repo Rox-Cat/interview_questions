@@ -9,11 +9,16 @@
 
 
 Function.prototype._call = function (context, ...args) {
-    if (typeof this !== 'function') {
-        throw new Error('调用者必须是函数')
-    }
 
-    context = context || window
+    /*     
+        这段话似乎没用
+        if (typeof this !== 'function') {
+            throw new Error('调用者必须是函数')
+        } 
+    */
+    // context可能是非对象，例如字符串等
+    context = (context === undefined || context === null)
+        ? global : Object(context)
 
     let fn = Symbol('fn')
     context[fn] = this
@@ -40,16 +45,15 @@ Function.prototype.myCall = function (thisArg, ...args) {
 // 定义一个对象
 let obj1 = {
     name: 'Bob',
-    sayName: function() {
-      console.log(this.name);
+    sayName: function () {
+        console.log(this.name);
     },
-  };
-  
-  // 定义另一个对象
-  let anotherObj = {
+};
+
+// 定义另一个对象
+let anotherObj = {
     name: 'Alice',
-  };
-  
-  // 使用你的call函数，改变obj.sayName函数的this指向为anotherObj，并执行它
-  obj1.sayName._call(anotherObj);
-  
+};
+
+// 使用你的call函数，改变obj.sayName函数的this指向为anotherObj，并执行它
+obj1.sayName._call(anotherObj);

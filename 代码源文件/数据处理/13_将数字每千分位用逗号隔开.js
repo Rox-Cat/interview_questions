@@ -18,4 +18,4 @@ function thousandsSplit(number) {
     return res
 }
 
-console.log(thousandsSplit(12))
+console.log(thousandsSplit(12345566))
