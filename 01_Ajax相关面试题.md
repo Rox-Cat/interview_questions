@@ -18,9 +18,9 @@
 
    原生Ajax和Fetch还有axios,其实明白了Ajax和原理，具体学习的就是调用方法的学习
 
-# 面试题/学习整理
+# AJAX
 
-## AJAX面试题
+## Ajax概念相关
 
 ### 1. 什么是Ajax？它的作用是什么？
 
@@ -99,7 +99,7 @@ Ajax最大的特点是可以在不刷新整个页面的情况下，异步加载�
 
 总之，Ajax 可以用于任何需要在后台服务器和前端之间进行数据交换的场景。
 
-## XHR进行原生AJAX请求的发送
+# XHR
 
 相关文档：
 
@@ -461,25 +461,33 @@ fetch("http://localhost:3000/users1")
             })
 ```
 
-## Axios发起Ajax请求
+# fetch
 
-### Axios简介
+## 面试题
 
->Axios是一个基于promise 的 HTTP 库，可以用在浏览器和 node.js中。
+### xhr和fetch的区别
 
-**相关资源**
 
-- https://www.npmjs.com/package/axios
 
-- [axios中文文档|axios中文网 | axios (axios-js.com)](http://www.axios-js.com/zh-cn/docs/index.html#axios-API)
+# Axios
 
-- [起步 | Axios 中文文档 | Axios 中文网 (axios-http.cn)](https://www.axios-http.cn/docs/intro)
+## Axios基础
 
-- `<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>`
-- [axios使用实例详解_axios实例使用_折海棠赠晩宁.的博客-CSDN博客](https://blog.csdn.net/zzDAYTOY/article/details/107098406)
-- [axios的实例创建与应用_DanceDonkey的博客-CSDN博客](https://blog.csdn.net/qq_43750656/article/details/112526144)
+> - https://www.npmjs.com/package/axios
+>
+> - [axios中文文档|axios中文网 | axios (axios-js.com)](http://www.axios-js.com/zh-cn/docs/index.html#axios-API)
+>
+> - [起步 | Axios 中文文档 | Axios 中文网 (axios-http.cn)](https://www.axios-http.cn/docs/intro)
+>
+> - `<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>`
+> - [axios使用实例详解_axios实例使用_折海棠赠晩宁.的博客-CSDN博客](https://blog.csdn.net/zzDAYTOY/article/details/107098406)
+> - [axios的实例创建与应用_DanceDonkey的博客-CSDN博客](https://blog.csdn.net/qq_43750656/article/details/112526144)
 
-### Axios发送请求
+### 1. Axios简介
+
+>Axios是一个基于promise 的 HTTP 库，可以用在浏览器和node.js中。
+
+### 2. Axios发送请求
 
 使用`axios(config)`发送请求，其中config包含以下内容：
 
@@ -511,7 +519,7 @@ axios({
 
 `axios.get/post/patch/delete`等，见后文。
 
-### Axios别名发送请求
+### 3. Axios别名发送请求
 
 #### Get请求
 
@@ -553,7 +561,7 @@ axios.post("http://localhost:3000/users",{
 })
 ```
 
-4. ##### put请求
+#### put请求
 
 ```js
 axios.put("http://localhost:3000/users/12",{
@@ -564,7 +572,7 @@ axios.put("http://localhost:3000/users/12",{
 })
 ```
 
-5. ##### delete请求
+#### delete请求
 
 ```js
 axios.delete("http://localhost:3000/users/11").then(res=>{
@@ -572,7 +580,7 @@ axios.delete("http://localhost:3000/users/11").then(res=>{
 })
 ```
 
-6. ##### axios(config)配置
+#### axios(config)配置
 
 ```js
 axios({
@@ -590,7 +598,7 @@ axios({
 })
 ```
 
-### Axios实例
+### 4. Axios实例发送请求
 
 > Axios实例用于配置Axios请求的基础信息，免去每次发送请求书写重复的内容。
 >
@@ -624,13 +632,13 @@ url: '/posts'
 instance.get('/posts')
 ```
 
-### 请求配置的内容
+### 5. 请求配置的内容
 
 > config：有哪些内容？
 >
 > [请求配置 | Axios 中文文档 | Axios 中文网 (axios-http.cn)](https://www.axios-http.cn/docs/req_config)
 
-### 响应体结构
+### 6. 响应体结构
 
 > 请求数据成功之后，在.then((response)=>{...response})中的响应体的内容。
 >
@@ -667,11 +675,13 @@ instance.get('/posts')
 }
 ```
 
-### 默认配置
+### 7. 默认配置
 
 > [默认配置 | Axios 中文文档 | Axios 中文网 (axios-http.cn)](https://www.axios-http.cn/docs/config_defaults)
 
-### Axios拦截器
+## Axios高级
+
+### 1. Axios拦截器
 
 - ###### 拦截器的作用
 
@@ -680,21 +690,68 @@ instance.get('/posts')
   1. 在请求发起前，可以通过请求拦截器设置请求头、设置请求参数等。
   2. 在响应返回后，可以通过响应拦截器对响应数据进行统一处理、进行错误处理、进行权限校验等。
 
-- ##### 具体作用
+- **请求拦截器**
 
-  Axios的拦截器是用来在发送请求或响应返回前拦截并处理相关操作的功能。拦截器分为请求拦截器和响应拦截器。
+  请求拦截器的作用是在请求发送前进行一些操作，例如设置请求头，添加token，修改请求参数等。请求拦截器可以提高代码的复用性，避免重复的代码，也可以增加请求的安全性和效率。
 
-  请求拦截器可以用来在发送请求前进行一些操作，如设置请求头、添加token等操作。响应拦截器可以用来在接收到响应后进行一些操作，如统一处理返回值、错误码等操作。
+- ##### 响应拦截器
 
-  Axios的拦截器主要有以下几个作用：
+  响应拦截器的作用是在接收到响应后进行一些操作，例如处理响应数据，判断响应状态，处理错误信息等。响应拦截器可以提高代码的可维护性，方便后期的修改和扩展，也可以增强代码的健壮性，提高用户体验。举例来说，如果我们想要对不同的响应状态码进行不同的处理，我们可以在响应拦截器中根据状态码进行判断和跳转。代码如下：
 
-  1. 统一处理请求和响应：可以通过请求拦截器和响应拦截器统一处理请求和响应的数据，从而避免代码重复。
-  2. 统一处理错误：可以通过响应拦截器统一处理错误，如网络错误、请求错误等。
-  3. 请求重试：可以通过请求拦截器实现请求重试的功能，如网络异常时可以自动重试请求。
-  4. 统一设置请求头：可以通过请求拦截器统一设置请求头，如添加 token 等操作。
-  5. 统一处理响应数据：可以通过响应拦截器统一处理响应数据，如对响应数据进行加工、格式化等操作。
-
-  总之，Axios的拦截器提供了非常强大的功能，使得开发者可以在发送请求前、请求返回后对请求和响应进行拦截和处理，从而可以在请求过程中进行一些统一、灵活的操作，提高了开发效率和代码的可维护性。
+  ```javascript
+  // 导入axios
+  import axios from 'axios'
+  // 创建新的axios实例
+  const instance = axios.create({
+    // 设置基础URL
+    baseURL: 'https://example.com/api',
+    // 设置超时时间
+    timeout: 5000
+  })
+  // 设置响应拦截器
+  instance.interceptors.response.use(response => {
+    // 对响应数据做点什么
+    // 判断响应状态码是否为200，如果是则返回数据，否则抛出错误
+    if (response.status === 200) {
+      return response.data
+    } else {
+      throw new Error(response.statusText)
+    }
+  }, error => {
+    // 对响应错误做点什么
+    // 判断错误类型，如果是网络错误，则提示网络异常，如果是服务器错误，则根据状态码跳转到相应的页面或提示信息
+    if (error.message.includes('Network Error')) {
+      alert('网络异常，请检查网络连接')
+    } else if (error.response) {
+      switch (error.response.status) {
+        case 401:
+          // 如果是401，则跳转到登录页面，并清除本地存储的token
+          window.sessionStorage.removeItem('token')
+          window.location.href = '/login'
+          break
+        case 403:
+          // 如果是403，则提示没有权限访问该资源
+          alert('您没有权限访问该资源')
+          break
+        case 404:
+          // 如果是404，则跳转到404页面，并提示资源不存在
+          window.location.href = '/404'
+          alert('资源不存在')
+          break
+        case 500:
+          // 如果是500，则跳转到500页面，并提示服务器内部错误
+          window.location.href = '/500'
+          alert('服务器内部错误')
+          break
+        default:
+          // 其他情况，直接返回错误信息
+          return Promise.reject(error)
+      }
+    }
+  })
+  // 导出实例
+  export default instance
+  ```
 
 - **使用拦截器**
 
@@ -726,28 +783,438 @@ instance.get('/posts')
   });
   ```
   
-  
 
-7. ##### axios 中断器的作用及使用
+### 2. Axios.all
+
+> [使用axios.all来进行并发请求 - 掘金 (juejin.cn)](https://juejin.cn/post/7067827033908183053)
+
+### 3. Axios.cancelToken
+
+### 4. 
+
+## Axios原理
+
+> 1. [Axios 源码解析 · Issue #1 · kiki-zjq/Blog · GitHub](https://github.com/kiki-zjq/Blog/issues/1)[==非常全面==]
+>
+> 2. [解析Axios原理之二：如何实现请求与响应的拦截 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/358385078)
+> 3. [最全、最详细Axios源码解读---看这一篇就足够了 - 掘金 (juejin.cn)](https://juejin.cn/post/7016255507392364557#heading-8)
+
+### 1. Axios原理
+
+> 相关面试问题：
+>
+> - 看你项目有用axios，axios底层原理
+> - axios库的原理
+
+#### 回答思路
+
+1. 总体介绍Axios
+2. 介绍Axios构造函数
+3. 介绍Axios.prototype.request方法
+   - 发起请求
+4. 介绍Axios拦截器原理
+5. 其他补充：Axios其他方法，Axios应用在Nodejs上。
+   - 如果描述该部分，要熟悉各个方法的原理
+
+#### 回答内容
+
+Axios内部原理是这样的：
+
+- Axios是一个基于Promise和XMLHttpRequest的HTTP客户端，它可以在浏览器和Node.js(使用HTTP模块发送请求)中使用，支持多种请求方式、数据格式、拦截器、取消请求、错误处理等特性。
+- 当我们导入axios的时候，实际上导入是通过createInstance创建的实例，该实例首先是`Axios.prototype`上的request方法，同时该实例又继承了Axios类。所以在Axios配置的时候，我们既可以直接配置，此时axios作为一个函数使用，同时还能调用Axios的属性和方法来发送请求或者添加拦截器等。【==作为补充==】
+- Axios的核心是Axios构造函数，它可以创建一个axios实例对象，该对象有一个defaults属性，用于存放配置对象；还有一个interceptors属性，用于设置请求和响应拦截器。
+- Axios原型上的request方法，它是axios实例对象发送请求，以及对于请求和响应拦截的核心方法。
+  - 该方法接收一个`config`参数，用于配置请求的相关信息。
+  - 该方法使用dispatchRequest函数，用于发送XMLHttpRequest请求，并返回一个Promise对象。
+  - 而对于拦截器的原理，是这样的
+    - 当我们创建axios实例的时候，`interceptors`属性针对request和response两个方法，创建两个拦截管理器，分别管理请求拦截和响应拦截。
+    - 当我们配置Axios拦截器之后，如果发送请求，代码处理的逻辑是，先执行请求拦截器的内容，然后发送请求，再对响应内容进行拦截，执行响应拦截器的内容。
+    - 为了完成上述顺序，Axios内部会创建一个数组，数组中初始的时候，有发送请求的函数dispatchRequest和undefined。
+    - 然后再遍历请求拦截器的handlers数组，将函数添加到新数组头部（先添加的拦截器，后执行），再遍历响应拦截器的handlers数组，将函数添加到新数组的尾部。
+    - 然后Axios会创建一个成功的Promise，参数为Axios的配置参数。并且依次取出chain数组的中的回调函数，作为Promise链式调用的then方式的成功和失败的回调，并将结果赋值给一个新的promise。
+    - 最后返回该promise。这样就实现了Axios拦截器中，先执行请求拦截器，再发送请求的，再执行响应拦截器的流程。
+- Axios还提供了一些静态方法和属性，如axios.create（创建axios实例）， axios.all，axios.spread，axios.CancelToken等，用于创建自定义实例、并发请求、分割结果、取消请求等功能。
+- Axios还支持多种适配器（adapter），用于在不同环境中发送请求。默认情况下，在浏览器中使用XMLHttpRequest适配器，在Node.js中使用http适配器。也可以自定义适配器，比如使用fetch API或者WebSocket等。
+
+### 2. Axios发送请求的原理
+
+- 在浏览器端，通过xhr发送请求
+- 在Nodejs端，通过HTTP模块发送请求
+
+### 3. Aixos拦截器
+
+#### Axios拦截器原理
+
+> 相关问法：axios的请求拦截和响应拦截底层实现原理是什么
+
+> - [解析Axios原理之二：如何实现请求与响应的拦截 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/358385078)
+
+1. axios的请求拦截和响应拦截的底层实现原理是基于Promise和拦截器管理器实现的。
+
+2. 拦截器管理器是一个构造函数，它可以创建一个拦截器实例，该对象中存在一个属性handlers数组，并且原型上有个use方法，用于将用户配置的拦截器的成功和失败的回调，添加到handlers数组中。
+3. 当我们配置拦截器的时候，会针对request和response两个方法，创建两个拦截管理器，分别管理请求拦截和响应拦截。
+4. 当我们配置Axios拦截器之后，如果发送请求，代码处理的逻辑是，先执行请求拦截器的内容，然后发送请求，再对响应内容进行拦截，执行响应拦截器的内容。
+
+5. 为了完成上述顺序，Axios内部会创建一个数组，数组中初始的时候，有发送请求的函数dispatchRequest和undefined。
+
+6. 然后再遍历请求拦截器的handlers数组，将函数添加到新数组头部（先添加的拦截器，后执行），再遍历响应拦截器的handlers数组，将函数添加到新数组的尾部。
+
+6. 然后Axios会创建一个成功的Promise，参数为Axios的配置参数。并且依次取出chain数组的中的回调函数，作为Promise链式调用的then方式的成功和失败的回调，并将结果赋值给一个新的promise。
+7. 最后返回该promise。这样就实现了Axios拦截器中，先执行请求拦截器，再发送请求的，再执行响应拦截器的流程。
+
+**注：对于异步请求拦截器的新增处理**
+
+> - [Requests unexpectedly delayed due to an axios internal promise · Issue #2609 · axios/axios · GitHub](https://github.com/axios/axios/issues/2609)
+
+在2020年版本中，将请求拦截器分为了同步和异步拦截器，在原来的版本中，无论是同步还是异步，都会将请求拦截器，包裹在promise.then()方法中，也就是说，请求是在微任务中，如果当前代码中存在着非常慢的同步任务，就会导致Axios请求延迟发送。所以针对没有异步请求拦截器的时候，对请求拦截器的执行以及请求的发送，当做同步来执行。
+
+#### Axios拦截器用途（详细）
+
+##### 我做了哪一部分？
 
 
 
-```js
-const controller = new AbortController();
+### 4. 取消Axios请求
 
-axios.get('/foo/bar', {
-   signal: controller.signal
-}).then(function(response) {
-   //...
-});
-// cancel the request
-controller.abort()
+#### 取消步骤
 
+Axios 可以通过使用 CancelToken 来实现取消请求的功能。具体步骤如下：
+
+1. 创建一个 CancelToken 对象，用来存储取消请求的方法和标识：
+
+```javascript
+const source = axios.CancelToken.source();
 ```
 
-#  同源策略(Same-origin policy)
+1. 在发送请求时，将 CancelToken 对象的 signal 属性作为参数传递给 axios：
 
-一个 URL  有三部分组成：<font color='red'>协议、域名(指向主机)、端口，</font>只有这三个完全相同的 URL 才能称之为同源。如下，能和  `http://www.example.com/dir1/index.html`  同源的是？
+```javascript
+axios.get('/foo/bar', {
+  signal: source.signal
+})
+.then(function (response) {
+  // 处理响应数据
+})
+.catch(function (error) {
+  // 处理错误
+});
+```
+
+1. 在需要取消请求的时候，调用 CancelToken 对象的 abort 方法：
+
+```javascript
+source.abort('Operation canceled by the user.');
+```
+
+这样，axios 就会中断请求，并抛出一个错误对象，其中包含了取消请求的原因。
+
+一个实际的案例是，当用户点击一个按钮时，发送一个请求，然后在另一个按钮上显示一个取消按钮，让用户可以随时取消请求。HTML 和 js 文件内容如下：
+
+```html
+<html>
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <button id="send">发送请求</button>
+  <button id="cancel" disabled>取消请求</button>
+  <div id="result"></div>
+  <script src="app.js"></script>
+</body>
+</html>
+```
+
+```js
+
+// app.js
+// 创建一个 CancelToken 对象
+let source = null;
+
+// 获取元素
+const sendBtn = document.getElementById('send');
+const cancelBtn = document.getElementById('cancel');
+const resultDiv = document.getElementById('result');
+
+// 给发送按钮添加点击事件
+sendBtn.addEventListener('click', function () {
+  // 如果已经有一个请求在进行中，先取消它
+  if (source) {
+    source.abort('Operation canceled by the user.');
+  }
+  // 创建一个新的 CancelToken 对象
+  source = axios.CancelToken.source();
+  // 发送请求，并将 signal 属性传递给 axios
+  axios.get('https://jsonplaceholder.typicode.com/todos/1', {
+    signal: source.signal
+  })
+  .then(function (response) {
+    // 请求成功，显示响应数据
+    resultDiv.innerHTML = JSON.stringify(response.data);
+    // 取消按钮不可用
+    cancelBtn.disabled = true;
+    // 清空 source 对象
+    source = null;
+  })
+  .catch(function (error) {
+    // 请求失败，显示错误信息
+    resultDiv.innerHTML = error.message;
+    // 取消按钮不可用
+    cancelBtn.disabled = true;
+    // 清空 source 对象
+    source = null;
+  });
+  // 取消按钮可用
+  cancelBtn.disabled = false;
+});
+
+// 给取消按钮添加点击事件
+cancelBtn.addEventListener('click', function () {
+  // 如果有一个请求在进行中，取消它
+  if (source) {
+    source.abort('Operation canceled by the user.');
+  }
+});
+```
+
+这样，用户就可以在发送请求后，随时点击取消按钮来中断请求。
+
+#### 取消时机
+
+需要注意的是，只有在请求还没有到达服务器的时候，才能取消请求。如果请求已经到达服务器，那么服务器会继续处理请求，并返回响应数据。这时候，即使客户端取消了请求，也无法阻止服务器的响应。所以，取消请求只能用来节省客户端的资源和带宽，并不能影响服务器的行为。
+
+如果你想了解更多关于 axios 取消请求的信息，你可以参考[这篇文档](https://axios-http.com/zh/docs/cancellation)。
+
+### 5. Axios二次封装
+
+#### 为什么要进行二次封装
+
+Axios二次封装是指根据项目的需求，对axios的请求和响应进行自定义配置，以提高代码的复用性和可维护性。例如，可以设置请求的基础URL，超时时间，这样我们在发送请求的时候就不需要每次都配置相同的内容。使用拦截器让我们对发送请求之前对于请求头统一的添加内容，使用响应拦截器可以实现预处理响应数据。
+
+#### 如何进行得二次封装
+
+> 能介绍一下对axios的再封装吗？
+
+##### 创建axios实例
+
+用来设置基础路径以及超时时间
+
+```js
+//第一步:利用axios对象的create方法,去创建axios实例(其他的配置:基础路径、超时的时间)
+const request = axios.create({
+  //基础路径
+  baseURL: import.meta.env.VITE_APP_BASE_API, //基础路径上会携带/api
+  timeout: 5000, //超时的时间的设置
+})
+```
+
+##### 添加请求拦截器
+
+```js
+//第二步:request实例添加请求与响应拦截器
+request.interceptors.request.use((config) => {
+  //获取用户相关的小仓库:获取仓库内部token,登录成功以后携带给服务器
+  const userStore = useUserStore()
+  if (userStore.token) {
+    config.headers.token = userStore.token
+  }
+  //config配置对象,headers属性请求头,经常给服务器端携带公共参数
+  //返回配置对象
+  return config
+})
+```
+
+##### 添加响应拦截器
+
+```js
+//第三步:响应拦截器
+request.interceptors.response.use(
+  (response) => {
+    console.log(response)
+    //成功回调
+    //简化数据
+    return response.data
+  },
+  (error) => {
+    //失败回调:处理http网络错误的
+    //定义一个变量:存储网络错误信息
+    let message = ''
+    //http状态码
+    const status = error.response.status
+    switch (status) {
+      case 401:
+        message = 'TOKEN过期'
+        break
+      case 403:
+        message = '无权访问'
+        break
+      case 404:
+        message = '请求地址错误'
+        break
+      case 500:
+        message = '服务器出现问题'
+        break
+      default:
+        message = '网络出现问题'
+        break
+    }
+    //提示错误信息
+    ElMessage({
+      type: 'error',
+      message,
+    })
+    return Promise.reject(error)
+  },
+）
+```
+
+
+
+### 6. Axios的特点
+
+> 等价于Axios的概念，可以做什么
+
+
+
+## 其他相关面试题
+
+### 1. 如果没有Axios，Ajax发送请求的过程
+
+### 2. Axios，Ajax，fetch的关系区别
+
+> - axios 的特点，和 AJAX 的区别
+>
+> - axios和原生区别
+
+## Axios源码解读
+
+### Axios类
+
+### constructor
+
+```js
+  constructor(instanceConfig) {
+
+    // 实例的默认配置
+    this.defaults = instanceConfig;
+
+    // axios 拦截器的本质
+    this.interceptors = {
+      request: new InterceptorManager(),
+      response: new InterceptorManager()
+    };
+  }
+```
+
+### request
+
+#### configOrUrl的作用
+
+configOrUrl 这个参数是一个可选的参数，它可以是一个字符串或者一个对象。如果它是一个字符串，那么它表示请求的 URL，如果它是一个对象，那么它表示请求的配置。如果你只传递一个参数，那么 axios 会认为你是传递了一个配置对象，而不是一个 URL。这个函数的第一部分就是用来判断和处理这个参数的。例如：
+
+```js
+// 如果你只传递了一个字符串，那么 axios 会自动创建一个空的配置对象，并将字符串作为配置对象的 url 属性
+axios('https://example.com/api/users');
+
+// 等价于
+axios({
+  url: 'https://example.com/api/users'
+});
+
+// 如果你只传递了一个对象，那么 axios 会直接使用这个对象作为配置对象
+axios({
+  method: 'POST',
+  url: 'https://example.com/api/users',
+  data: {
+    name: 'Alice',
+    age: 25
+  }
+});
+
+// 如果你传递了两个参数，那么 axios 会认为第一个参数是 URL，第二个参数是配置对象，并将两者合并
+axios('https://example.com/api/users', {
+  method: 'POST',
+  data: {
+    name: 'Alice',
+    age: 25
+  }
+});
+
+// 等价于
+axios({
+  method: 'POST',
+  url: 'https://example.com/api/users',
+  data: {
+    name: 'Alice',
+    age: 25
+  }
+});
+```
+
+#### transitional, paramsSerializer
+
+这段代码是用来处理配置对象中的 transitional、paramsSerializer 和 headers 三个属性的。我来逐一解释一下：
+
+- transitional 这个属性是用来控制 axios 的一些过渡性的特性，比如 JSON 数据的解析、错误的提示等。它是一个对象，可以包含以下三个子属性：
+  - silentJSONParsing：这个属性是用来控制是否在 JSON 数据解析失败时抛出错误。如果为 true，那么 axios 会默默地忽略解析错误，如果为 false，那么 axios 会抛出 SyntaxError 异常。默认值是 true。
+  - forcedJSONParsing：这个属性是用来控制是否强制对响应数据进行 JSON 解析。如果为 true，那么 axios 会尝试对所有响应数据进行 JSON 解析，如果为 false，那么 axios 会根据响应头的 Content-Type 来判断是否需要解析。默认值是 true。
+  - clarifyTimeoutError：这个属性是用来控制是否在超时错误时给出更清晰的提示。如果为 true，那么 axios 会在超时错误的 message 中添加 timeout 字样，如果为 false，那么 axios 会保持原样。默认值是 false。
+- paramsSerializer 这个属性是用来自定义请求参数的序列化方式的。它可以是一个函数或者一个对象。如果它是一个函数，那么它会接收一个参数对象，并返回一个序列化后的字符串。如果它是一个对象，那么它可以包含以下两个子属性：
+  - encode：这个属性是用来自定义请求参数的编码方式的。它是一个函数，它会接收一个参数值，并返回一个编码后的字符串。
+  - serialize：这个属性是用来自定义请求参数的序列化方式的。它是一个函数，它会接收一个参数对象，并返回一个序列化后的字符串。
+- headers 这个属性是用来设置请求头的。它是一个对象，可以包含以下几种类型的子属性：
+  - common：这个属性是用来设置所有请求类型共享的请求头的。它是一个对象，可以包含任意的键值对。
+  - delete、get、head、post、put、patch：这些属性是用来设置对应请求类型特有的请求头的。它们都是对象，可以包含任意的键值对。
+  - 其他任意键值对：这些属性是用来设置其他自定义的请求头的。
+
+你可以参考这篇文章，它详细地介绍了 axios 的配置对象和各个属性的含义。
+
+#### 请求头的优化
+
+这部分代码的作用是将请求头进行扁平化处理，即将 headers 对象中的 common 属性和对应请求方法的属性合并为一个新的对象，然后删除 headers 对象中的这些属性，只保留其他自定义的请求头属性。这样做的目的是为了方便设置和发送请求头，避免重复或冲突。例如：
+
+```js
+// 假设配置对象中的 headers 属性如下
+headers: {
+  common: {
+    'X-Requested-With': 'XMLHttpRequest'
+  },
+  get: {
+    'Accept': 'application/json'
+  },
+  post: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  'X-Custom-Header': 'foo'
+}
+
+// 经过这部分代码的处理后，headers 对象变为
+headers: {
+  'X-Requested-With': 'XMLHttpRequest',
+  'Accept': 'application/json',
+  'X-Custom-Header': 'foo'
+}
+
+// 如果请求方法是 post，那么 headers 对象变为
+headers: {
+  'X-Requested-With': 'XMLHttpRequest',
+  'Content-Type': 'application/x-www-form-urlencoded',
+  'X-Custom-Header': 'foo'
+}
+```
+
+你可以参考这篇文章，它详细地分析了 axios 的请求头处理逻辑。
+
+#### runWhen方法
+
+
+
+### InterceptorManager类
+
+
+
+#  同源策略
+
+一个 URL 有三部分组成：<font color='red'>协议、域名(指向主机)、端口，</font>只有这三个完全相同的 URL 才能称之为同源。如下，能和  `http://www.example.com/dir1/index.html`  同源的是？
 
 | URL                                       | 结果   | 原因                               |
 | ----------------------------------------- | ------ | ---------------------------------- |

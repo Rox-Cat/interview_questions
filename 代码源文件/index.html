@@ -6,32 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 </head>
+<script type="module" src="./app.js"></script>
 
 <body>
-    <script>
-        let salesOffices = {
-            clientList: [],
-            listen: function (fn) {
-                this.clientList.push(fn)
-            },
-            trigger: function(){
-                for (let fn of this.clientList){
-                    fn.apply(this, arguments)
-                }
+    <script type="module">
+        import createInstance from "./app.js"
+        const axios = createInstance({
+            method: 'post',
+            url: '/user/12345',
+            data: {
+                firstName: 'Fred',
+                lastName: 'Flintstone'
             }
-        }
-
-        salesOffices.listen(function(price, squareMeter){
-            console.log(`价格：${price}, 面积：${squareMeter}`)
         })
-        salesOffices.listen(function(price, squareMeter){
-            console.log(`价格：${price}, 面积：${squareMeter}`)
-        })
-        salesOffices.listen(function(price, squareMeter){
-            console.log(`价格：${price}, 面积：${squareMeter}`)
-        })
-
-        salesOffices.trigger(1000, '100')
+        console.log(typeof axios)
+        console.log(axios.request)
     </script>
 </body>
 

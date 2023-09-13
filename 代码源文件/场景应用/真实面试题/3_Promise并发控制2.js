@@ -8,11 +8,11 @@
 
 
 // 模拟http请求
-function httpRequest(time) {
+function httpRequest(url) {
     return new Promise((resolve) => {
         setTimeout(() => {
-            console.log('完成一个任务', time, new Date());
-            resolve(time)
+            console.log('完成一个任务', url, new Date());
+            resolve(`完成一个任务${url}`)
         }, time * 1000)
     })
 }

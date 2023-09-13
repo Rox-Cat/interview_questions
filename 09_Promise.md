@@ -12,13 +12,31 @@
 >
 > - [不积跬步之Promise输出题(共32道有详细解析版) - 简书 (jianshu.com)](https://www.jianshu.com/p/d9f1bd3bb16b)
 
-## 面试题
+## 常见面试题
 
-1. Promise中回调函数是同步的还是异步的？then的链式调用是同步的还是异步的？
+### 1. Promise概念相关
 
-   Promise中的回调函数有两种类型：同步回调和异步回调。同步回调是指在Promise构造函数中传入的executor函数，它会立即执行，不会放入回调队列中。异步回调是指在Promise的then或catch方法中传入的onFulfilled或onRejected函数，它们会在Promise状态改变后执行，会放入回调队列中等待执行。
+#### 基本概念
 
-   then方法的链式调用是异步的，因为每个then方法都会返回一个新的Promise对象，这个对象的状态由then方法中的回调函数的返回值决定。如果返回值是一个Promise对象，那么新的Promise对象就会跟随这个对象的状态；如果返回值是一个非Promise值，那么新的Promise对象就会变为fulfilled状态，并将这个值作为成功的值；如果回调函数抛出异常，那么新的Promise对象就会变为rejected状态，并将异常作为失败的原因。这样就可以实现多个异步操作按照顺序执行，并且可以获取每个操作的结果。
+Promise中回调函数是同步的还是异步的？then的链式调用是同步的还是异步的？
+
+Promise中的回调函数有两种类型：同步回调和异步回调。同步回调是指在Promise构造函数中传入的executor函数，它会立即执行，不会放入回调队列中。异步回调是指在Promise的then或catch方法中传入的onFulfilled或onRejected函数，它们会在Promise状态改变后执行，会放入回调队列中等待执行。
+
+then方法的链式调用是异步的，因为每个then方法都会返回一个新的Promise对象，这个对象的状态由then方法中的回调函数的返回值决定。如果返回值是一个Promise对象，那么新的Promise对象就会跟随这个对象的状态；如果返回值是一个非Promise值，那么新的Promise对象就会变为fulfilled状态，并将这个值作为成功的值；如果回调函数抛出异常，那么新的Promise对象就会变为rejected状态，并将异常作为失败的原因。这样就可以实现多个异步操作按照顺序执行，并且可以获取每个操作的结果。
+
+#### 扩展Promise的话题
+
+
+
+### 2. 手写Promise
+
+#### 手写Promise
+
+见后文
+
+#### 手写Promise.all
+
+见后文
 
 ## 基本概念
 
@@ -1308,32 +1326,56 @@ static reject(error){
 
 ### Promise.all(array)方法
 
-参数是一个由promise对象组成的数组，返回一个promise对象，值取决于：
+**接收参数**
 
-- 全部由pending -> fulfilled，输出数组，值为promise的值
-- 其中一个由pending -> rejected，输出值
+- 由promise对象组成的组成
+
+**返回值**
+
+- 返回一个promise对象，返回值取决于
+
+  - 全部由pending -> fulfilled，输出数组，值为promise的值
+
+  - 其中一个由pending -> rejected，输出拒绝的结果
+
+
+**注意点**
+
+1. 对于非可迭代对象的的处理
+2. 对于长度为0数组的处理
+3. 对于数组中值为非Promise对象的处理
 
 ```js
-    static all(arrs) {
-        return new MyPromise((resolve, reject) => {
-            if (!Array.isArray(arrs)) {
-                throw new Error('arrs 必须是一个函数')
-            }
-            let resolveCnt = 0
-            let result = []
-            for (let i = 0; i < arrs.length; i++) {
-                arrs[i].then(value => {
-                    result[i] = value
-                    resolveCnt += 1
-                    if (resolveCnt === arrs.length) {
-                        resolve(result)
-                    }
-                }, error => {
-                    reject(error)
-                })
-            }
-        })
-    }
+Promise._all = function (iterable) {
+    return new Promise((resolve, reject) => {
+
+        // 处理不可迭代类型
+        if (typeof iterable[Symbol.iterator] !== "function") {
+            // 如果不是，就直接拒绝新的 Promise，并返回一个错误信息
+            return reject(new TypeError("iterable must be an iterable object"));
+        }
+
+        // 可迭代类型的转化
+        const promises = Array.from(iterable)
+        const n = promises.length
+
+        // 判断是否为空数组
+        if (n === 0) return resolve([])
+
+        let finish = 0
+        const results = []
+        for (let i = 0; i < n; i++) {
+            Promise.resolve(promises[i]).then((res) => {
+                results[i] = res
+                finish += 1
+                if (finish === n) {
+                    resolve(results)
+                }
+            }, error => {
+                reject(error)
+            })
+        }
+    })
 }
 ```
 

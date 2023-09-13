@@ -1,0 +1,75 @@
+const arr = [1, 2, 2, 'abc', 'abc', true, true, false, false, undefined, undefined, NaN, NaN]
+
+/* 
+    方式1，直接使用函数 
+    时间复杂度：O(n), 空间复杂度：O(n)
+*/
+const arr1 = Array.from(new Set(arr))
+console.log(arr1)
+
+/* 
+    方式2，二重循环 
+    时间复杂度：O(n**2),空间复杂度O(1)
+    缺点：无法处理NaN的情况，因为NaN != NaN
+*/
+const arr2 = arr.slice()
+for (let i = 0; i < arr2.length; i++) {
+    for (let j = i + 1; j < arr2.length; j++) {
+        if (arr2[i] === arr2[j]) {
+            arr2.splice(j, 1)
+            j-- // 再从j开始判断
+        }
+    }
+}
+console.log(arr2)
+
+/* 
+    方式3，indexOf 本质和方法4一样都是判断新数组中是否已经有了该值
+*/
+
+const arr3 = arr.slice()
+// const 
+
+
+/* 
+    方式4，includes方法，判断元素是否在数组中
+    时间复杂度:O(n**2) 空间复杂度O(n)
+*/
+
+const arr4 = []
+for (let num of arr) {
+    if (!arr4.includes(num)) {
+        arr4.push(num)
+    }
+}
+console.log(arr4)
+
+/* 
+    方法5，filter() + indexOf
+    原理：只保留第一次出现的位置
+    缺点：indexOf无法处理NaN的情况
+
+*/
+
+const arr5 = arr.filter((item, idx) => {
+    return arr.indexOf(item) === idx
+})
+console.log(arr5)
+
+
+/* 
+    方法6：Map / 对象
+    本质：hash表去重
+*/
+
+const map = new Map()
+const arr6 = []
+for (let num of arr) {
+    if (!map.has(num)) {
+        map.set(num, true)
+        arr6.push(num)
+    } 
+}
+console.log(arr6)
+
+

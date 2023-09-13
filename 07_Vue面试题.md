@@ -1,4 +1,4 @@
-# Vue原理相关
+# Vue原理
 
 > [前端面试必备 | Vue篇（P1-50）_牛客网 (nowcoder.com)](https://www.nowcoder.com/discuss/519916612305027072?sourceSSR=search)
 
@@ -24,6 +24,8 @@
 
 通过这种方式，Vue.js实现了数据和视图之间的双向绑定，当数据发生变化时，视图会自动更新；反之，当用户与视图进行交互时，数据也会相应地进行更新。
 
+### Vue中的副作用函数
+
 ## 2. OdefineProperty与Proxy
 
 ### Vue2数据劫持
@@ -40,7 +42,7 @@
 
 ### Vue3数据劫持
 
-Vue3 使用 Proxy 来创建一个响应式对象（reactive object），这个对象会包裹原始的 data 对象，并拦截它的所有操作。
+在Vue3.x版本中，使用Proxy这个API来实现数据劫持。Proxy可以创建一个对象的代理，对代理对象的访问和修改都会被拦截和处理。
 
 Vue3 实现数据代理的方法有以下几个优点：
 
@@ -317,6 +319,10 @@ defineEmits(['update:modelValue'])
 
 ## 18. nextTick
 
+> [你真的理解$nextTick么 - 掘金 (juejin.cn)](https://juejin.cn/post/6844903843197616136?searchId=20230911160625EC8C82FCDBC1BB0FFB6A)
+>
+> [Vue.$nextTick你真的懂了吗？？？ - 掘金 (juejin.cn)](https://juejin.cn/post/7007328894621581349?searchId=20230911160625EC8C82FCDBC1BB0FFB6A)
+
 #### 概念
 
 vue中的nextTick是一个方法，它的作用是在下次DOM更新循环结束之后执行延迟回调。在修改数据之后立即使用这个方法，可以获取更新后的DOM。
@@ -324,9 +330,49 @@ vue中的nextTick是一个方法，它的作用是在下次DOM更新循环结束
 #### 原理
 
 - 当Vue检测到响应式数据变化时，Vue不会立即更新DOM，而是将所有的副作用放入一个异步更新队列（async update queue），并在下一个事件循环（event loop）的tick中批量执行它们。这样可以避免多次重复渲染，提高性能和一致性。
+
+  一种简单的实现方式如下：
+
+  ```js
+    const jobQueue = new Set()
+    const p = Promise.resolve()
+  
+    let isFlushing = false
+  
+    function flushJob() {
+      if (isFlushing) return
+  
+      // 一旦 flushJob 函数开始执行，isFlushing 标志就会设置为
+      // true，意思是无论调用多少次 flushJob 函数，在一个周期内都只会执行一次.
+      // 其实就是这个函数本身具有去重抵御机制。
+      isFlushing = true
+      p.then(() => {
+        jobQueue.forEach(job => job())
+      }).finally(() => {
+        isFlushing = false
+      })
+  
+      //  这个功能有点类似于在 Vue.js 中连续多次修改响应式数据但只会触发一次更新
+    }
+  
+    effect(() => {
+      console.log(obj.foo)
+    }, {
+      scheduler(fn) {
+        // 强行将 fn 放到宏任务 (Macro task) 队列中，等待下一次事件轮询
+        // setTimeout(fn)
+  
+        jobQueue.add(fn)
+        flushJob()
+      }
+    })
+  ```
+
 - 而nextTick(callback)，它可以让我们在异步更新队列被清空，也就是DOM被更新之后执行回调函数。这样可以让我们在合适的时机**操作更新的DOM或执行其他逻辑**。
 
 - Vue内部使用了Promise.then()或MutationObserver等API来实现nextTick函数，它们都属于微任务（microtask）。微任务会在当前事件循环结束时执行，优先于宏任务（macrotask），如setTimeout或setInterval等。这样可以保证nextTick函数尽可能早地执行，而不会被其他异步任务阻塞。
+
+  
 
 #### 场景
 
@@ -617,7 +663,7 @@ MVVM表示模型-视图-视图模型，它是对MVP的改进，它将应用程�
 
 Vue会在调用渲染函数时，把它（渲染函数）包装在一个响应式副作用中，这个副作用会记录下所有访问到的响应式依赖，并把自己添加到这些依赖的订阅者列表中。这样，当某个依赖发生变化时，就会触发这个副作用重新执行，从而重新渲染组件。
 
-# Vue3相关
+# Vue3
 
 ## 1. Vue3的更新
 
@@ -672,11 +718,25 @@ Vue3推荐使用Pinia作为状态管理库，它是一个基于Composition API�
 
 ## 2. 虚拟DOM
 
+#### 什么是虚拟DOM
+
+虚拟DOM是用来描述真实DOM的方式，在JavaScript中，虚拟DOM本身是一个树形结构的对象，对象的属性用来描述真实DOM的内容，并且树形结构的层级关系用来描述真实DOM的层级关系。
+
+我们使用虚拟DOM的过程是这样的：
+
+当我们想要修改真实DOM的时候，首先修改的是虚拟DOM，然后比较新旧的虚拟DOM之间的差异，最后更新真实DOM。
+
 对于前端来说，最明显的好处就是：
 
 #### 提高渲染能力
 
-虚拟DOM可以避免直接操作真实DOM，从而减少重绘和重排的次数，提高渲染性能。虚拟DOM还可以使用一些优化策略，比如静态标记、双端比较、最长递增子序列等，来找出最小的更新操作，从而减少不必要的DOM操作。
+我们知道真实DOM的操作是很耗费资源的，每次修改DOM都会可能会引起浏览器的重绘和重排，影响用户体验。
+
+而虚拟DOM是用JavaScript对象来模拟真实DOM，操作虚拟DOM的速度远快于操作真实DOM。
+
+虚拟DOM还可以通过diff算法来比较新旧虚拟节点之间的差异，只更新必要的部分，避免了无用的DOM操作。
+
+因此虚拟DOM可以减少对真实DOM的操作次数，从而提高页面的渲染性能。
 
 其他方面来说，可以：
 
@@ -690,6 +750,8 @@ Vue3推荐使用Pinia作为状态管理库，它是一个基于Composition API�
 
 首次渲染时，多了一层虚拟DOM的计算，所以会比不使用虚拟DOM慢一些，但是能够在DOM更新或者修改时更快。
 
+
+
 ## 3. key的用处
 
 #### 概述
@@ -702,9 +764,20 @@ Vue3推荐使用Pinia作为状态管理库，它是一个基于Composition API�
 
 # 其他
 
-## 1. 单页面和多页面应用的理解
+## 1. 副作用函数
 
-见面经
+副作用函数是指在执行函数的过程中，除了返回函数值之外，还对函数外部的环境或数据产生了影响的函数。副作用函数通常会改变全局变量、修改参数、打印输出、抛出异常、调用其他有副作用的函数等。
+
+在Vue中，副作用函数指的是根据数据对页面内容进行修改的函数，这类函数执行组成了页面的渲染。
+
+## 2. 一个组件存在多个副作用函数？
+
+假如说，组件中的数据是响应式的，那么对于该组件，会用到几个副作用函数呢？这要根据具体的情况而定，但一般来说，至少会有以下几个副作用函数：
+
+- 一个渲染副作用函数，用来渲染和更新组件的视图：render + patch
+- 一个生命周期副作用函数，用来执行onMounted、onUpdated等钩子
+- 一个或多个自定义副作用函数，用来执行watchEffect或watch等自定义逻辑
+  当然，如果组件中还有其他的响应式数据或逻辑，可能还会有更多的副作用函数。
 
 
 

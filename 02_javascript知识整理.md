@@ -1,6 +1,6 @@
 # 数据类型篇
 
-#### 字面量
+### 字面量
 
 在JavaScript中，字面量是指一种直接指定常量值的表示方法，它可以用来创建各种数据类型的值。常见的字面量包括：
 
@@ -141,8 +141,27 @@ null之间的==，或者隐式转换
 
 #### ==\=和\==
 
+> [JavaScript 隐式类型转换，一篇就够了！ (freecodecamp.org)](https://www.freecodecamp.org/chinese/news/javascript-implicit-type-conversion/)
+
 - `==` 比较时会进行类型转换，如果两个操作数的类型不同，会尝试将它们转换为相同的类型，然后再进行比较
-  - 如果其中一个值是`null`，另一个值必须是`undefined`或者`null`才会相等。反之`undefined`相同
+  
+  - 如果两个值都是对象，那么比较它们的引用是否相同。
+  
+  - 如果一个值是null，另一个值是undefined，那么它们相等，否则与其他任何类型比较都是False。
+  
+  - 如果一个值是数字，另一个值是字符串，那么将字符串转换为数字，再进行比较。
+  
+  - 如果一个值是布尔值，那么将其转换为数字，再进行比较。true转换为1，false转换为0。
+  
+  - 如果一个值是对象，另一个值是原始类型（字符串、数字、布尔值、null、undefined），那么将对象转换为原始类型，再进行比较。对象转换为原始类型的方法是：
+  
+    1. 首先尝试通过Symbol.toPrimitive()方法将对象转换为原始值，然后再进行比较。Symbol.toPrimitive()方法接受一个hint参数，表示要转换到的原始值的预期类型。hint参数的取值是"number"、"string"和"default"中的任意一个
+  
+    2. 先调用对象的valueOf方法，如果返回的是原始类型，就使用该值；
+    3. 否则再调用对象的`toString`方法，如果返回的是原始类型，就使用该值；
+    4. 否则抛出类型错误异常。
+  
+  - 其他情况下，两个值不相等。
 - `===` 比较时不会进行类型转换，只有当两个操作数的类型相同，且值相等时，才返回 true。
 
 #### 值的比较
@@ -188,6 +207,121 @@ null之间的==，或者隐式转换
   `a ?? b`，只有在a为undefined和null的时候，执行b。
 
   `a || b`，a为假值的时候，执行b。相比之下，空值合并运算法更加严格
+
+### 数组常见API
+
+#### 遍历类
+
+该部分主要是数组原型上的方法，可以对数组进行遍历并执行一定的操作。
+
+##### 总结
+
+- forEach，map，filter 都是相同的：回调函数(cur, idx, arrs), thisArg
+- reduce: 回调函数（pre, cur, idx, arr）, 初始值
+
+##### 使用方法
+
+1. `forEach(callback[, thisArg])`
+
+   - `callback`：一个回调函数，它将在数组的每个元素上被调用。
+   - `thisArg`（可选）：在回调函数中使用的 `this` 值。
+
+     - 参数：
+
+       - `value`：当前元素的值。
+       - `index`：当前元素的索引。
+       - `array`：正在遍历的数组本身。
+
+2. `map(callback[, thisArg])`
+
+   - `callback`：一个回调函数，它对数组中的每个元素调用该函数，并返回一个新数组。
+   - `thisArg`（可选）：在回调函数中使用的 `this` 值。
+
+     - 参数：
+
+       - `value`：当前元素的值。
+       - `index`：当前元素的索引。
+       - `array`：正在遍历的数组本身。
+
+3. `filter(callback[, thisArg])`
+
+   - `callback`：一个回调函数，用于筛选数组中的元素，并返回一个新数组。
+   - `thisArg`（可选）：在回调函数中使用的 `this` 值。
+
+     - 参数：
+
+       - `value`：当前元素的值。
+       - `index`：当前元素的索引。
+       - `array`：正在遍历的数组本身。
+
+4. `reduce(callback[, initialValue])`
+
+   - `callback`：一个回调函数，通过累加器和数组的每个元素将其减少为单个值。
+     - 参数：
+
+       - `accumulator`：累加器，保存中间结果。
+       - `value`：当前元素的值。
+       - `index`：当前元素的索引。
+       - `array`：正在遍历的数组本身。
+   - `initialValue`（可选）：作为第一次调用回调函数时的第一个参数 `accumulator` 的值。如果未提供 `initialValue`，则使用数组的第一个元素作为 `accumulator` 的初始值，并从数组的第二个元素开始迭代。
+
+5. `every(callback[, thisArg])`
+
+   - `callback`：一个回调函数，检查数组中的所有元素是否满足给定的条件。
+   - `thisArg`（可选）：在回调函数中使用的 `this` 值。
+
+     - 参数：
+
+       - `value`：当前元素的值。
+       - `index`：当前元素的索引。
+       - `array`：正在遍历的数组本身。
+
+6. `some(callback[, thisArg])`
+
+   - `callback`：一个回调函数，检查数组中的至少一个元素是否满足给定的条件。
+   - `thisArg`（可选）：在回调函数中使用的 `this` 值。
+
+     - 参数：
+
+       - `value`：当前元素的值。
+       - `index`：当前元素的索引。
+       - `array`：正在遍历的数组本身。
+
+##### 使用案例
+
+当使用 `every` 方法时，回调函数会对数组中的每个元素进行检查，只有当所有元素都满足给定的条件时，`every` 方法返回 `true`，否则返回 `false`。
+
+以下是一个示例，使用 `every` 方法检查数组中的所有元素是否都是偶数：
+
+```javascript
+const array = [2, 4, 6, 8, 10];
+
+const isAllEven = array.every((value) => {
+  return value % 2 === 0;
+});
+
+console.log(isAllEven); // 输出: true，因为数组中的所有元素都是偶数
+```
+
+在上面的例子中，回调函数 `(value) => value % 2 === 0` 检查每个元素是否为偶数。由于所有元素都是偶数，所以 `isAllEven` 的值为 `true`。
+
+相反，当使用 `some` 方法时，回调函数会对数组中的每个元素进行检查，只要有至少一个元素满足给定的条件，`some` 方法就会返回 `true`，否则返回 `false`。
+
+以下是一个示例，使用 `some` 方法检查数组中是否存在奇数：
+
+```javascript
+const array = [2, 4, 6, 7, 8];
+
+const hasOddNumber = array.some((value) => {
+  return value % 2 !== 0;
+});
+
+console.log(hasOddNumber); // 输出: true，因为数组中存在奇数（7）
+```
+
+在上面的例子中，回调函数 `(value) => value % 2 !== 0` 检查每个元素是否为奇数。由于数组中存在奇数，所以 `hasOddNumber` 的值为 `true`。
+
+通过使用 `every` 和 `some` 方法，可以方便地检查数组中的元素是否满足特定条件，从而进行相应的处理。
 
 # 函数篇
 
@@ -764,7 +898,7 @@ map和对象的区别主要有以下几点：
 - let 和 const 只有在声明之后才能访问和使用该变量。
 - 可修改性：var 和 let 声明的变量可以重新赋值。const 声明的常量不能重新赋值，也就是说，在声明并初始化之后，不能使用赋值运算符来改变该常量的值（否则会报错）。但是，如果 const 声明的常量是一个引用类型（如对象或数组），那么不能修改它的引用地址，但可以修改它的属性或元素 。
 
-# 导入和导出
+# 前端模块化
 
 **为什么要有模块？**
 
@@ -779,6 +913,32 @@ map和对象的区别主要有以下几点：
 **常见的模块实现方式**
 
 CommonJS、AMD、ES6模块
+
+## script标签使用module
+
+### 有哪些特性？
+
+在HTML文件中，使用<script>标签并设置type="module"具有以下特性：模块化脚本加载：type="module"告诉浏览器该脚本是一个模块化脚本，浏览器会将其当作**独立的模块**来处理，而不是将其作为传统的脚本直接执行。这使得开发者可以利用模块化的特性来组织和管理代码。
+
+1. 模块作用域：模块化脚本具有自己的作用域，不会污染全局作用域。在模块中定义的变量、函数和类默认情况下都是私有的，不会与其他模块中的标识符冲突。
+2. 默认开启严格模式，this为undefined
+
+3. 异步加载：模块化脚本会异步加载，不会阻塞页面的解析和渲染过程。这意味着页面可以继续加载和显示，而不必等待脚本的下载和执行完成。【**等价于开启defer吗？**】
+4. 延迟执行：模块化脚本默认情况下会延迟执行，即在页面加载完成后才会执行。这使得脚本的执行顺序可以与它们在页面中的位置无关，提高了代码的可维护性。
+
+5. CORS 支持：模块化脚本遵循跨源资源共享（CORS）规则，可以从其他域加载模块。这使得开发者可以轻松地使用来自不同域的模块，实现更灵活的代码组织和复用。
+
+### Tips
+
+#### 使用defer和module在加载模块时的区别
+
+#### 严格模式的特性
+
+#### 使用"nomodule"
+
+可以让代码只在不支持ES6 module的浏览器上执行
+
+明天再查
 
 ## ES6的模块
 
@@ -839,7 +999,7 @@ sayBye('John'); // Bye, John!
 - 默认导出要将 `export default` 放在要导出的实体前，
 
 - 一个模块中，只允许默认导出一次;
-- 在导入的时候不要使用花括号{}，可以自定义导入的名称
+- 在导入的时候==不要使用花括号{}==，可以自定义导入的名称
 
 #### 可以导出什么？
 
@@ -881,7 +1041,7 @@ export default let add = function(a, b) { return a + b };
 let add = function(a, b) { return a + b };
 export default add;
 
-// 或者直接导出->作为匿名函数，也就是函数的表达式。
+// 或者直接导出 -> 作为匿名函数，也就是函数的表达式。
 export default function(a, b) { return a + b };
 
 
@@ -943,11 +1103,94 @@ export default {
 }
 ```
 
+下面的方式是错误的，只有命名导出，才能够是使用解构的方式获取。
+
 ```ts
 improt { name, title } from '/xx.ts'
 ```
 
+### 命名+默认
 
+ES6模块是一种在JavaScript中创建和使用模块的新标准。模块可以包含类、函数、变量和对象等成员，这些成员可以通过export和import关键字在不同的文件中共享。
+
+#### 导出
+
+如果一个模块想要同时导出命名导出和默认导出，有两种方法：
+
+- 一种是在每个成员前面使用export关键字，然后在最后使用export default关键字导出一个默认成员。例如：
+
+```javascript
+// module.js
+export const name = 'Alice';
+export function sayHello() {
+  console.log('Hello, ' + name);
+}
+export default class Person {
+  constructor(age) {
+    this.age = age;
+  }
+}
+```
+
+- 另一种是在一个export语句中列出所有的命名导出，然后再添加一个default关键字导出一个默认成员。例如：
+
+```javascript
+// module.js
+const name = 'Alice';
+function sayHello() {
+  console.log('Hello, ' + name);
+}
+class Person {
+  constructor(age) {
+    this.age = age;
+  }
+}
+export { name, sayHello, Person as default };
+```
+
+#### 导入
+
+如果一个模块想要导入同时包含命名导出和默认导出的模块，也有两种方法：
+
+- 一种是使用花括号{}来导入命名导出，然后使用一个任意的标识符来导入默认导出。例如：
+
+```javascript
+// main.js
+import Person, { name, sayHello } from './module.js';
+let p = new Person(20);
+console.log(p.age); // 20
+console.log(name); // Alice
+sayHello(); // Hello, Alice
+```
+
+- 另一种是使用* as来导入所有的成员，然后使用.来访问默认导出和命名导出。例如：
+
+```javascript
+// main.js
+import * as Module from './module.js';
+let p = new Module.default(20);
+console.log(p.age); // 20
+console.log(Module.name); // Alice
+Module.sayHello(); // Hello, Alice
+```
+
+- 在花括号中使用default as xxx
+
+```js
+import { name, sayHello  default as Person} from './module.js';
+```
+
+以上就是ES6模块中同时导出命名导出和默认导出，以及如何导入的方法。你可以参考[这篇文章](^3^)来了解更多关于ES6模块的知识。
+
+
+
+### 其他
+
+#### 动态导入
+
+使用`import('文件地址')`
+
+#### 
 
 ## CommonJS模块
 
@@ -961,15 +1204,15 @@ improt { name, title } from '/xx.ts'
 
 ### 不同点
 
+- ES module的导入和导出都是在编译时确定的，而不是在运行时决定的。这意味着，import和export命令只能在模块的顶层使用，不能放在块级作用域或条件语句中。但是我们可以使用import()函数来实现的，它可以在运行时动态地加载模块，并返回一个Promise对象，表示模块加载的状态。如果成功那么返回的参数为模块导出的内容，反之是加载错误的信息。
+
+  commonJs的导入和导出都是在运行时确定的，而不是在编译时确定的。这意味着，require和module.exports命令可以放在任何地方使用，甚至可以根据条件或者循环来动态导入或导出模块。
+
 - **导出导入方式不同**。ES6模块使用import和export语句来导入和导出值，而CommonJs模块使用require函数和module.exports对象来导入和导出值。
 
 - CommonJs 是对模块的**浅拷贝**，ES6 Module 是对**模块的引用**【1】。这意味着 CommonJs 导出的是一个值的副本，而 ES6 Module 导出的是一个值的引用。因此，如果模块内部的值发生了变化，CommonJs 导入的值不会改变，而 ES6 Module 导入的值会跟随改变。ES6是只存只读的，不能修改导入变量的值【2】。
 
-- CommonJs 可以动态导入，ES6 Module 只能静态导入。这意味着 CommonJs 可以在运行时根据条件语句或变量来导入模块，而 ES6 Module 只能在编译时确定导入的模块。
-
-  
-
-注：
+**注：**
 
 1. #### **关于ES6和CommonJS的导入的修改**
 
