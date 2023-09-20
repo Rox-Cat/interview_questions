@@ -1239,7 +1239,7 @@ onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : () => { return t
 onRejected = typeof onRejected === 'function' ? onRejected : () => { return this }
 ```
 
-### 9. catc方法
+### 9. catch方法
 
 等价于then中onFulfilled为undefined
 
@@ -1510,8 +1510,6 @@ MyPromise.race([p1, p2, p3]).then((value) => {
     }
 ```
 
-
-
 ## 应用场景
 
 > [前端 Promise 常见的应用场景 - 掘金 (juejin.cn)](https://juejin.cn/post/6844904131702833159)
@@ -1522,7 +1520,7 @@ MyPromise.race([p1, p2, p3]).then((value) => {
 
 Promise.all方法的常用场景是**处理多个并行的异步操作**，但是要全部成功才能下一步操作，例如同时发送多个网络请求，然后等待所有请求完成后再进行下一步操作。例如并行验证多条信息都成功。
 
-Promise.allSettled方法同样是处理多个并行的异步操作，但是允许存在操作失败的情况，
+Promise.allSettled方法同样是处理多个并行的异步操作，但是允许存在操作失败的情况。
 
 Promise.race方法的常用场景是处理竞争或**超时**的情况，例如同时发送多个网络请求，然后只取最快返回的结果，或者设置一个超时时间(promise+定时器)，如果在规定时间内没有返回结果，则抛出错误。
 

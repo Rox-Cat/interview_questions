@@ -1152,28 +1152,32 @@ child2.getName (); // daisy
 - 例子：
 
 ```javascript
-// 目标对象
-var person = {
-  name: '小明',
-  friends: ['小红', '小白']
-};
-// 原型式继承函数
-function createObject(o) {
+// 定义一个父类
+function Parent(name) {
+  this.name = name;
+  this.colors = ["red", "green", "blue"];
+}
+
+// 定义一个原型式继承的函数
+function object(o) {
   // 创建一个临时的构造函数
   function F() {}
-  // 让这个构造函数的原型指向目标对象
+  // 将构造函数的原型设置为父对象
   F.prototype = o;
-  // 返回这个构造函数的实例
+  // 返回一个新对象，它的原型是父对象
   return new F();
 }
-// 测试
-var person1 = createObject(person);
-var person2 = createObject(person);
-console.log(person1.name); // 小明
-console.log(person2.name); // 小明
-console.log(person1.friends); // ['小红', '小白']
-person1.friends.push('小黑');
-console.log(person2.friends); // ['小红', '小白', '小黑']
+
+// 使用原型式继承创建一个子类
+var child = object(new Parent("Tom"));
+// 对子类进行一些操作，添加或修改属性和方法
+child.age = 10;
+child.colors.push("yellow");
+// 打印子类的属性和方法
+console.log(child.name); // Tom
+console.log(child.age); // 10
+console.log(child.colors); // ["red", "green", "blue", "yellow"]
+
 ```
 
 ##### 5.寄生式继承

@@ -134,7 +134,7 @@ function ref(value) {
 
 - 计算属性被包裹在副作用函数中，并被在调度选项中设置了lazy标签，只有读取该值的时候，才会计算。
 - 计算属性的副作用函数中有个缓存布尔值，表示是否需要重新计算。
-- 默认为false，但是当响应数据变化是设置为，在调度选项中设置为True。
+- 默认为false，但是当响应数据变化时，在调度选项中设置为True。
 - 当获取数据的时候，如果为True，那么重新计算，并设置为false
 
 ### methods
@@ -521,7 +521,19 @@ mounted生命周期时DOM已经挂载完毕，视图被渲染。再此处的操�
 
 ### props
 
-父 -> 子
+在父组件的子组件标签上，来书写要传递的属性值，属性值可以通过v-bind:绑定也可以是静态的属性值。
+
+```vue
+<MyBox :count=count></MyBox>
+```
+
+在子组件中使用`defineProps`来接收传递的来的props属性
+
+```js
+const props = defineProps(["count"])
+```
+
+props被传递来不允许被修改。
 
 ### $emit 自定义事件 
 
@@ -559,8 +571,6 @@ onMounted(() => {
   <Child ref="child" />
 </template>
 ```
-
-### 事件总线
 
 ### pinia
 
@@ -667,17 +677,33 @@ Vue会在调用渲染函数时，把它（渲染函数）包装在一个响应�
 
 ## 1. Vue3的更新
 
+> [盘点 Vue3 与 Vue2 的区别 - 掘金 (juejin.cn)](https://juejin.cn/post/7067413380922867725)
+
 ### 性能提升
 
-Vue3使用了重新编写的响应式系统和虚拟DOM算法，使得渲染速度和内存占用都有显著的提升，据称比Vue2快1.2~2倍12。Vue3还支持Tree Shaking和Code Splitting等技术，可以减少打包后的代码体积和加载时间12。
+Vue3使用了重新编写的响应式系统，Vue2 响应式原理基础是 Object.defineProperty；Vue3 响应式原理基础是 Proxy， 有效的避免了上面的不足。
+
+
 
 ### 组合式API
 
-Vue3引入了Composition API，它是一种新的编写组件逻辑的方式，可以让开发者更灵活地组织和复用代码，避免了Vue2中Options API带来的代码分散和难以维护的问题。Composition API还提供了更好的TypeScript支持和自定义Hooks的能力。
+Vue3引入了Composition API，它是一种新的编写组件逻辑的方式，可以让开发者更灵活地组织和复用代码，避免了Vue2中Options API带来的代码分散和难以维护的问题。
+
+Composition API还提供了更好的TypeScript支持和自定义Hooks的能力。
+
+### 生命周期
+
+beforeCreate和created合并为了setup生命周期，beforeDestroy、destroyed修改为了onBeforeUnmount、onUnmounted。
+
+在Vue3组合式API中，如果使用生命周期钩子要手动引入。
 
 ### 新的模板语法
 
-Vue3支持了一些新的模板语法，比如`<script setup>`、`<style vars>`、`<teleport>`、`<suspense>`等，可以让开发者更方便地编写组件。其中`<script setup>`可以让开发者在单文件组件中直接使用Composition API；<teleport>可以让开发者将组件渲染到任意位置；<suspense>可以让开发者处理异步组件的加载状态。
+Vue3支持了一些新的模板语法，比如`<script setup>`、`<style vars>`、`<teleport>`、`<suspense>`等，可以让开发者更方便地编写组件。
+
+其中`<script setup>`可以让开发者在单文件组件中直接使用Composition API；
+
+`<teleport>`可以让开发者将组件渲染到任意位置；`<suspense>`可以让开发者处理异步组件的加载状态。
 
 ### 新的状态管理库
 
