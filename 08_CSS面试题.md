@@ -153,6 +153,8 @@ CSS是一种用于描述网页样式的语言，它可以让我们控制网页�
 
 ### 4. display的区别
 
+> [块元素、行内块元素、行内元素小结 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/455597164)
+
 #### 区别
 
 - block：宽度为父元素宽度，高度由内容撑开，参考文档。
@@ -164,11 +166,11 @@ CSS是一种用于描述网页样式的语言，它可以让我们控制网页�
 - block:
   - 排版标签：div, h1~h6, p,
   - 列表标签： ol(有序列表), ul(无序列表), li(列表)
-  - 
-- inline-block: img
+  - **table**: 定义表格，可以用来显示表格数据或布局内容。
+  - **form**: 定义表单，可以用来收集用户输入或提交数据。
+- inline-block: img，button， input， textarea， select
 - inline: 
-  - 文本标签：em, strong, span（只是用来包裹内容，设置样式）
-  - 表单相关：button， input， textarea， select
+  - 文本标签：a, em, strong, span,label, cite, code（只是用来包裹内容，设置样式）
 
 ### 5. 隐藏属性的方法
 

@@ -16,15 +16,35 @@
 
 ### 1. Promise概念相关
 
-#### 基本概念
+#### 介绍promise
 
-Promise中回调函数是同步的还是异步的？then的链式调用是同步的还是异步的？
+1. promise的概念
 
-Promise中的回调函数有两种类型：同步回调和异步回调。同步回调是指在Promise构造函数中传入的executor函数，它会立即执行，不会放入回调队列中。异步回调是指在Promise的then或catch方法中传入的onFulfilled或onRejected函数，它们会在Promise状态改变后执行，会放入回调队列中等待执行。
+   Promise 是一种用于异步编程的解决方案，它的本质是对回调函数的封装。它可以让异步操作更加清晰、简洁，避免了回调地狱的问题。
 
-then方法的链式调用是异步的，因为每个then方法都会返回一个新的Promise对象，这个对象的状态由then方法中的回调函数的返回值决定。如果返回值是一个Promise对象，那么新的Promise对象就会跟随这个对象的状态；如果返回值是一个非Promise值，那么新的Promise对象就会变为fulfilled状态，并将这个值作为成功的值；如果回调函数抛出异常，那么新的Promise对象就会变为rejected状态，并将异常作为失败的原因。这样就可以实现多个异步操作按照顺序执行，并且可以获取每个操作的结果。
+2. promise状态变化
+
+   当我们创建promise实例的时候，会传入一个函数，函数的参数的为resolve和reject，初始时，promise实例的状态为pending，当resolve函数执行是状态变为fulfilled，当reject函数执行，状态变为rejected。
+
+3. promise提供了一些方法，例如:
+
+   - then方法可以处理promise状态为fullfilled和rejected
+   - catch用来捕获rejected，执行相应的函数
+   - finally不管是什么状态都会执行
+
+4. promise还提供了一些静态方法，例如：
+
+   ...
 
 #### 扩展Promise的话题
+
+1. Promise中回调函数是同步的还是异步的？
+
+   是同步的
+
+2. then的链式调用是同步的还是异步的？
+
+   异步的，会加入微任务队列....
 
 
 
@@ -1536,7 +1556,7 @@ async 是一个关键字，用来声明一个函数是异步的。它会返回�
 
 generator 函数是一种特殊的函数，它配合yield关键字可以暂停执行和恢复执行，返回一个迭代器对象。每次调用迭代器的 next 方法，就会执行 generator 函数内部的一段代码，直到遇到 yield 关键字，暂停并返回 yield 后面的表达式的值。再次调用 next 方法时，会从上次暂停的地方继续执行，直到遇到 return 关键字或者函数结束，返回 {value: undefined, done: true} 表示迭代完成。
 
-async/await 的实现原理就是利用了 generator 函数和 Promise 对象。async 函数在执行时，会被编译器转换成一个 generator 函数，并自动执行。当遇到 await 表达式时，会暂停执行，并将 await 后面的表达式包装成一个 Promise 对象，当这个 Promise 对象被 resolve 时，会再次调用 next 方法，并将 resolve 的值作为next方法的参数，也就是作为上一次 await 表达式的返回值。这样就实现了异步操作的同步化表达。
+async/await 的实现原理就是利用了 generator 函数和 Promise 对象。async 函数在执行时，会被编译器转换成一个 generator 函数，并自动执行。当遇到 await 表达式时，会暂停执行，并将 await 后面的表达式包装成一个 Promise 对象，当这个 Promise 对象被 resolve 时，会再次调用 next 方法，并将 resolve 的值作为next方法的参数，也就是作为上一次 await 表达式的返回值。依次执行，遇到await就会重复上述过程，知道函数结束。这样就实现了异步操作的同步化表达。
 
 如果想了解更多关于 async/await 的原理和实现，可以参考以下文章：
 

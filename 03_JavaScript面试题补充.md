@@ -469,7 +469,15 @@ const newArr1 = [...arrayLike]   //② 会报错
 
 #### 11. 数组的常用方法
 
+#### symbol.iterator
 
+常见的用到`symbol.iterator`方法：
+
+- `let ... of `
+- 扩展运算法
+- `Array.from()`将可迭代类型转为数组
+- `Promise.all / promise.race`
+- 
 
 ### ES6新增特性
 

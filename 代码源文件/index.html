@@ -5,23 +5,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .outer {
+            width: 1000px;
+            height: 200px;
+            border: 2px solid black;
+            margin: auto;
+            margin-top: 200px;
+        }
+
+        .inner {
+            width: 200px;
+            height: 200px;
+            background-color: bisque;
+            /* 应用动画到元素 */
+            animation-name: wangyoudong;
+            /* 动画时间 */
+            animation-duration: 3s;
+            /*  延迟时间 */
+            animation-delay: 1s;
+
+            /* 其他属性 */
+
+            /* animation-timing-function: linear; */
+            /* 设置动画的方式 */
+            animation-timing-function: steps(24);
+
+            /* 动画播放的次数 */
+            animation-iteration-count: 3;
+
+            /* 方向 */
+            animation-direction: reverse;
+        }
+
+        /* 定义一组关键帧 */
+        @keyframes wangyoudong {
+
+            /* 第一帧 */
+            from {
+
+            }
+
+            /* 最后一帧 */
+            to {
+                transform: translate(800px) rotate(90deg);
+                background-color: red;
+                border-radius: 50%;
+            }
+        }
+
+
+    </style>
 </head>
-<script type="module" src="./app.js"></script>
 
 <body>
-    <script type="module">
-        import createInstance from "./app.js"
-        const axios = createInstance({
-            method: 'post',
-            url: '/user/12345',
-            data: {
-                firstName: 'Fred',
-                lastName: 'Flintstone'
-            }
-        })
-        console.log(typeof axios)
-        console.log(axios.request)
-    </script>
+    <div class="outer">
+        <div class="inner"></div>
+    </div>
 </body>
 
 </html>

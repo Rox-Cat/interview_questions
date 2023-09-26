@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    .diolag {
+        width: 200px;
+        height: 200px;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        background-color: hotpink;
+
+    }
+</style>
+
+<body>
+    <!-- <div class="diolag">
+        登陆对话框
+    </div> -->
+    <button id="open">打开</button>
+    <button id="close">关闭</button>
+    <script>
+        class Singleton {
+            constructor() {
+                if (!Singleton.instance) {
+                    Singleton.instance = document.createElement('div')
+                    Singleton.instance.innerHTML = '登录对话框'
+                    Singleton.instance.className = 'diolag'
+                    Singleton.instance.style.display = "none"
+                    console.log('实例被创建了')
+                }
+                return Singleton.instance
+            }
+        }
+        document.querySelector("#open").addEventListener('click', () => {
+            // 创建对话框
+            instance = new Singleton()
+            document.body.appendChild(instance)
+            // 显示对话框
+            instance.style.display = 'block'
+        })
+        document.querySelector("#close").addEventListener('click', () => {
+            // 关闭对话框
+            instance = new Singleton()
+            instance.style.display = "none"
+        })
+    </script>
+</body>
+
+</html>
