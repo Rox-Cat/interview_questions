@@ -1563,3 +1563,4 @@ async/await 的实现原理就是利用了 generator 函数和 Promise 对象。
 - [async、await 实现原理 - 知乎](https://zhuanlan.zhihu.com/p/115112361)
 - [async/await 原理及简单实现 - 简书](https://www.jianshu.com/p/0f1b6ae1888c)
 - [理解 JavaScript 的 async/await - 知乎](https://zhuanlan.zhihu.com/p/172378607)
+
