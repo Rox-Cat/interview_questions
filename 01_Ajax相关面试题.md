@@ -1251,7 +1251,7 @@ headers: {
 
 ##### 1. JSONP的原理
 
-由于浏览器同源策略的限制，网页中无法通过 Ajax 请求非同源的接口数据。但是 <script> 标签不受浏览器同源策略的影响，可以通过 src 属性（src属性可以设置url，表示请求地址），请求非同源的 js 脚本。通过Content-Type: text/javascript来设置返回文件的类型，<a href="#src返回">默认是JavaScript</a>。
+由于浏览器同源策略的限制，网页中无法通过 Ajax 请求非同源的接口数据。但是`<script>`标签不受浏览器同源策略的影响，可以通过 src 属性（src属性可以设置url，表示请求地址），请求非同源的 js 脚本。通过Content-Type: text/javascript来设置返回文件的类型，<a href="#src返回">默认是JavaScript</a>。
 
 因此，JSONP 的实现原理，就是通过 `<script>` 标签的 src 属性，请求跨域的数据接口，并通过**函数调用**的形式，接收跨域接口响应回来的数据。
 

@@ -1,41 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <style>
-        .outer {
-            height: 100px;
-        }
-        .left {
-            width: 200px;
-            height: 100px;
-            float: left;
-            background-color: rgb(201, 132, 42);
-        }
-        .right {
-            width: 200px;
-            height: 100px;
-            float: right;
-            background-color: rgb(224, 84, 192);
-        } 
-        .mid {
-            height: 100px;
-            margin-left: 200px;
-            margin-right: 200px;
-            background-color: rgb(207, 202, 40);
-        }
-
+      .outer {
+        height: 100px;
+      }
+      .left {
+        width: 200px;
+        height: 100px;
+        float: left;
+        background-color: rgb(201, 132, 42);
+      }
+      .mid {
+        height: 100px;
+        margin-left: 200px;
+        margin-right: 200px;
+        background-color: rgb(207, 202, 40);
+      }
+      .right {
+        width: 200px;
+        height: 100px;
+        float: right;
+        background-color: rgb(224, 84, 192);
+      }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <div class="outer">
-        <div class="left"></div>
-        <div class="right"></div>
-        <div class="mid"></div>
+      <div class="left"></div>
+      <div class="right"></div>
+      <!-- 
+            要保证先写right，再写mid
+            因为先写mid的话，会独占一行，
+            right不会影响到上面的元素，
+            所以right会跑到下一行中
+      -->
+      <div class="mid"></div>
     </div>
-</body>
-
+  </body>
 </html>

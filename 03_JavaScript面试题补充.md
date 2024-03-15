@@ -14,6 +14,8 @@
 
 ### 为什么分为基本数据类型和引用数据类型
 
+> 数据类型特点 -> 栈堆内存的特点 -> 结合
+
 - 基本数据类型的值是固定大小的，并且通常是临时性的，比如函数的参数和局部变量，它们在函数执行完毕后就会被销毁。这样的数据可以很容易地存储在栈内存中。栈内存的特点
 - 引用数据类型的值是不确定大小的，并且通常是持久性的，比如全局变量和对象属性，它们在程序运行期间一直存在。这样的数据不能直接存储在栈内存中，因为栈内存是有序和连续的，不能动态地调整大小。所以，引用数据类型的值是存储在堆内存中，堆内存是一种无序的、非连续的、无限的内存空间。堆内存的优点是空间大，可以存放任意多或任意大的数据，但是分配和释放速度慢，操作复杂，需要进行垃圾回收机制来清理无用的数据。
 
@@ -27,7 +29,7 @@
 
   堆内存是一种动态分配和释放的内存空间，优点是空间较大，不易溢出，缺点是访问速度慢，容易产生内存泄漏。
 
-- 基本数据类型和引用数据类型在内存中的分配方式：基本数据类型在声明时就确定了其大小和值，大小是固定的，所以可以直接放在栈内存中，这样可以提高效率和节省空间。引用数据类型在声明时无法确定其大小和值，所以需要放在堆内存中，这样可以避免栈内存溢出和浪费。引用数据类型在栈内存中只保存一个指向堆内存中对象的地址，这样可以方便地找到和操作对象。
+- 基本数据类型和引用数据类型在内存中的分配方式：基本数据类型在声明时就确定了其大小和值，大小是固定的，所以可以直接放在栈内存中，这样可以提高效率和节省空间。引用数据类型在声明时无法确定其大小和值，所以需要放在堆内存中，这样可以避免栈内存溢出和浪费。**引用数据类型在栈内存中只保存一个指向堆内存中对象的地址，这样可以方便地找到和操作对象。**
 
 ### Symbol介绍
 
@@ -270,6 +272,20 @@ typeof 通过变量内部的标记位来判断，而 null 的标记位是 0，�
 
 void是一个一元运算符，它可以让任何表达式的结果变成undefined。它常用于获取undefined的原始值，或者在不需要返回值的情况下执行某个表达式。它也可以用于阻止链接跳转或创建立即执行函数表达式。
 
+1. 防止链接的跳转
+
+```html
+   <a href="javascript:void(0);">Click me without changing the page</a>
+```
+
+2. 用于立即执行函数表达式（IIFE），以避免污染全局命名空间：
+
+```javascript
+   void function() {
+     // 代码块
+   }();
+```
+
 #### 11. 类型转换总结
 
 > [JavaScript 隐式类型转换，一篇就够了！ (freecodecamp.org)](https://www.freecodecamp.org/chinese/news/javascript-implicit-type-conversion/)
@@ -339,7 +355,7 @@ console.log("1" == 1); // 输出 "true"
 
 在上面的代码中，使用 Object.is() 方法比较字符串 "1" 和数字 1 时，返回 false，而使用相等运算符比较时，会将字符串转换为数字，最终返回 true。因此，在进行比较时，需要根据具体的需求选择合适的比较方法。
 
-#### 16. 包装器类型
+### 16. 包装器类型
 
 **装箱：将基本数据类型转为对象**
 
@@ -1010,83 +1026,81 @@ var bob = new Person("Bob", 20);
 >
 > ==> 子类实例的可以使用父类的属性和方法。
 
+> /* 
+>
+> 思考，一个合理的继承应该满足什么条件？extends 关键字做了哪些内容？
+>
+>     1. 可以传递参数给父类，父类属性的继承，并且父类属性具有独立性，子类的实例独享一个父类的属性
+>    
+>        2. 对于父类原型对象的继承，即子类实例的原型 => 子类的原型对象 它的原型=> 父类的原型对象
+>
+> 整理：
+>
+> - 可以使用父类属性
+> - 父类属性不互用
+> - 子类有独立的原型对象
+> - 子类的原型对象指向父类的原型对象
+>
+> */
+
 ##### 1.原型链继承
 
-- 这种继承方式是通过让**子类的原型对象**指向**父类的实例**，从而让子类可以继承父类原型链上的所有属性和方法。
-- 优点：简单易用，可以实现多重继承。
-- 缺点：无法向父类构造函数传递参数，所有子类实例共享父类实例的属性，修改一个子类实例的属性可能会影响其他子类实例。
-- 应用场景：适用于不需要传递参数，且不关心原型属性是否被修改的情况。
-- 案例1 -> 基本功能：
+- 这种继承方式是通过让**子类的原型对象**指向**父类的实例**，从而让子类可以继承父类属性以及其原型链上的所有属性和方法。
+- 优点：
+  - 实现了继承父类的原型对象
+
+- 缺点：
+  1. 无法传递参数给父类，每个子类可以使用的父类属性是一样的；
+  2. 所有子类实例共享父类实例的属性，修改一个子类实例的属性可能会影响其他子类实例。
+- 应用场景：适用于不需要传递参数，且不关心原型属性是否被修改的情况。除此之外，对于父类中有复杂的方法等，如果使用其他方法每次复制一份的话，可能带来性能问题，但是原型链继承并不会产生这样的问题。
 
 ```javascript
-/* 
-    实现原型链的继承
-        - 将子类的原型指向父类的实例，这样子类的实例就可以访问父类的属性和方法
-*/
-// 父类
-function Animal(species){
-    this.species = species 
-    this.sayHello = function (){
-        console.log(this.name + "hello")
-    }
-}
-// 子类
-function Dog(name){
-    this.name = name
+function father(name, age) {
+	this.name = name
+	this.age = age
+	this.colors = ["red", "blue", "green"]
 }
 
-// 设置原型 -> dog的实例可以访问Animal上的属性和方法
-Dog.prototype = new Animal()
-
-// 实例测试
-dog = new Dog('旺财')
-dog.sayHello()
-console.log(dog.species)
-console.log(dog.name)
-console.log(dog instanceof Dog)
-console.log(dog instanceof Animal)
-```
-
-- 案例2：
-
-```js
-// 父类
-function Animal(name) {
-  this.name = name;
-  this.colors = ['black', 'white'];
+father.prototype.sayName = function () {
+	return this.name
 }
-// 父类原型方法
-Animal.prototype.getName = function() {
-  return this.name;
-};
 
-// 子类
-function Dog(name, age) {
-  this.age = age;
+function son(height) {
+	this.height = height
 }
-// 原型链继承
-Dog.prototype = new Animal('dog');
-// 子类原型方法
-Dog.prototype.getAge = function() {
-  return this.age;
-};
 
-// 测试
-var dog1 = new Dog('旺财', 3);
-var dog2 = new Dog('来福', 2);
-console.log(dog1.getName()); // dog
-console.log(dog2.getName()); // dog
-console.log(dog1.colors); // ['black', 'white']
-dog1.colors.push('brown');
-console.log(dog2.colors); // ['black', 'white', 'brown']
+son.prototype = new father()
+son.prototype.sayHeight = function () {
+	console.log(this.height)
+}
+
+// 使用
+const son1 = new son(180)
+console.log(son1.height) // 基本属性
+son1.sayName() // 父类方法      180 
+son1.sayHeight() // 子类方法    180
+
+// 问题1：无法传递参数给父类，每个子类可以使用的父类属性是一样的
+const son2 = new son(175)
+console.log(son2.height) // 175 
+
+// 问题2：修改子类实例中关于父类的引用类型之后，其他子类实例对应属性也被修改了
+son1.colors.push("black")
+console.log(son2.colors) // [ 'red', 'blue', 'green', 'black' ]
 ```
 
 ##### 2.构造函数继承
 
 - 这种继承方式是通过在子类构造函数中调用父类构造函数，从而让子类可以继承父类的实例属性和方法。
-- 优点：可以向父类构造函数传递参数，可以实现多个子类共享同一个父类实例，子类修改实例属性不会影响其他子类。
-- 缺点：**无法继承父类原型对象的属性和方法**，每个子类都要重新创建父类的实例属性和方法，造成资源浪费。
-- 应用场景：适用于需要传递参数，且关心实例属性是否被修改的情况。
+- 优点：
+  - 能够实现父类构造函数的属性复制给子类，且每个子类的这些属性都是独立的。
+  - 可以在子类构造函数中向父类构造函数传递参数，实现属性值的定制。
+
+- 缺点：
+  - **无法继承父类原型对象的属性和方法**；
+  - 如果想实现类似继承父类原型对象的方法（例如父类一些方法、属性，在所有对象中都是一样的），需要将通用的属性和方法写在父类的构造函数中，进而导致重复创建父类的实例属性和方法，造成资源浪费。
+
+- 应用场景：此继承模式适用于子类需要从父类继承独立属性，且父类构造函数需要接收参数的场景，并且不关心父类的原型对象问题。
 - 例子：
 
 ```javascript
@@ -1105,6 +1119,8 @@ function Dog(name, age) {
   Animal.call(this, name);
   this.age = age;
 }
+// 修正子类的constructor
+Dog.prototype.constructor = Dog
 // 子类原型方法
 Dog.prototype.getAge = function() {
   return this.age;
@@ -1119,146 +1135,277 @@ dog1.colors.push('brown');
 console.log(dog2.colors); // ['black', 'white']
 ```
 
-JavaScript中对象继承的方式有以下几种：
+```javascript
+function father(name, age) {
+	this.name = name
+	this.age = age
+}
+
+father.prototype.sayName = function () {
+	console.log(this.name)
+}
+
+function son(name, age, height) {
+    father.call(this, name, age) 
+    this.height = height  
+}
+
+son.prototype.sayHeight = function () {
+    console.log(this.height)
+}
+// son.prototype.constructor = son  // call方法并不会影响到实例的constructor
+
+// 基本使用
+// 优点：实现了可以给父元素传递参数
+const son1 = new son('son1', 10, 180)
+console.log(son1.name, son1.age, son1.height)
+
+// 问题1：无法使用父类的原型对象上的方法
+// son1.sayName() // 报错
+
+// 问题2：无法复用父类的方法，这个本质原因是把方法写在了父类构造函数中，其他的继承方法也没法复用，
+// 当然其他的继承方法可以将方法写在原型对象上，这样服用，但是构造函数继承的方法，没法实现服用
+```
 
 ##### 3.组合继承
 
 - 通过结合原型链继承和构造函数继承，实现子类对父类属性和方法的完全继承。
-- 优点：可以向**父类传递参数**，可以**复用父类原型的方法**，避免了**引用类型属性共享**的问题，是最常用的继承方式。
-- 缺点：调用了**两次父类构造函数**，生成了**两份父类属性**，存在内存浪费的问题。
-- 应用场景：适合大部分的继承需求，不需要考虑内存优化的情况。
+- 优点：
+  - 可以向**父类传递参数**；
+  - 可以**复用父类原型的方法**；
+  - 避免了对于**父类实例的引用类型属性共享**的问题
+
+- 缺点：
+  - 调用了**两次父类构造函数**，生成了**两份父类属性**，存在内存浪费的问题。
+  - 子类的原型上有父类构造函数中的属性和方法
+
+- 应用场景：组合继承通常适用于需要子类实例具有独立属性，并且需要继承父类原型方法的场景，同时不考虑性能问题。如果需要避免内存浪费问题，建议使用寄生组合继承来解决调用两次父类构造函数的问题。
 - 代码案例：
 
 ```javascript
-function Parent (name) {
-  this.name = name;
+function father(name, age) {
+	this.name = name
+	this.age = age
+    this.FIX = "123"
 }
 
-Parent.prototype.getName = function () {
-  console.log (this.name);
+father.prototype.sayName = function () {
+	return this.name
 }
 
-function Child (name) {
-  Parent.call (this, name);
+function son(name, age, height) {
+    father.call(this, name, age) 
+    this.height = height  
 }
 
-Child.prototype = new Parent ();
+son.prototype = new father()
+son.prototype.constructor = son
 
-var child1 = new Child ('kevin');
-var child2 = new Child ('daisy');
+/* 
+    优点：
+        1. 实现了给父类传递参数，同时互不影响
+        2. 实现了子类使用父类原型上的方法和属性
+*/
+// 基本使用
+const son1 = new son("son1", 10, 180)
+console.log("访问属性：", son1.name, son1.age, son1.height)
+console.log("访问原型方法：", son1.sayName())
 
-child1.getName (); // kevin
-child2.getName (); // daisy
+// 问题1：调用两次父类构造函数，浪费内存，降低性能，同时使得子类的原型上有父类的属性和方法
+console.log(son1.__proto__)
+/* 
+打印结果：
+father {
+  name: undefined,
+  age: undefined,
+  FIX: '123',
+  constructor: [Function: son]
+}
+*/
 ```
 
 ##### 4.原型式继承
 
-- 这种继承方式是通过一个函数来创建一个临时的构造函数，然后让这个临时的构造函数的原型对象指向一个目标对象，从而让这个临时的构造函数的实例可以继承目标对象的属性和方法。
-- 优点：简单易用，可以实现对任意对象的浅拷贝。
-- 缺点：无法向构造函数传递参数，无法实现多个子类共享同一个父类实例，子类修改原型属性会影响其他子类。
+- 这种继承方式是通过一个函数来创建一个临时的构造函数，然后让这个临时的构造函数的原型对象指向一个目标的原型对象，从而让这个临时的构造函数的实例可以继承目标对象的属性和方法。
+- 优点：简单易用，可以用来指定对象的原型，我们可以说其实他就是实现了这个功能，生成一个指定原型的空对象。
+- 缺点：
+  - 无法向构造函数传递参数，没有区分父类和原型对象，只能担任一个角色。
+
+- 如今可以使用`Object.create(新对象的原型， 新对象的属性描述符)`
 - 应用场景：适用于不需要传递参数，且不关心原型属性是否被修改的情况。
 - 例子：
 
+原型对象 -> 父类都是新的实例
+
 ```javascript
-// 定义一个父类
-function Parent(name) {
-  this.name = name;
-  this.colors = ["red", "green", "blue"];
+/* 
+    直接指定子类的原型
+*/
+
+const fatherPrototype = {
+	name: "zhangsan",
+	age: 18,
+	sayName() {
+	    return this.name
+	}
 }
 
-// 定义一个原型式继承的函数
-function object(o) {
-  // 创建一个临时的构造函数
-  function F() {}
-  // 将构造函数的原型设置为父对象
-  F.prototype = o;
-  // 返回一个新对象，它的原型是父对象
-  return new F();
+function create(prototype) {
+	function f() {}
+    f.prototype = prototype
+    return new f()
+}
+/* 
+    优点：
+        1. 比较简单，实现生成一个空对象，并指定其原型
+    缺点：
+        1. 无法传递子类参数
+        2. 不存在父类属性，因为直接把父类作为了原型对象
+*/
+const son1 = create(fatherPrototype)
+console.log(son1.__proto__)
+console.log(son1.name, son1.age) // zhangsan 18
+console.log(son1.sayName()) // zhangsan
+```
+
+其实和下面的方法没区别，可能算是提供了一种为新对象，指定原型的方法？：
+
+例如，如果您想要创建另一个对象，它有一个不同的原型 `motherPrototype`，您可以简单地调用 `create(motherPrototype)` 来实现。这样，您就可以根据需要创建具有不同原型的多个对象，而不必为每个原型创建一个新的构造函数。
+
+```javascript
+const fatherPrototype = {
+	name: "zhangsan",
+	age: 18,
+	sayName() {
+		return this.name
+	},
 }
 
-// 使用原型式继承创建一个子类
-var child = object(new Parent("Tom"));
-// 对子类进行一些操作，添加或修改属性和方法
-child.age = 10;
-child.colors.push("yellow");
-// 打印子类的属性和方法
-console.log(child.name); // Tom
-console.log(child.age); // 10
-console.log(child.colors); // ["red", "green", "blue", "yellow"]
+function create() {
 
+}
+create.prototype = fatherPrototype
+const son1 = new create()
 ```
 
 ##### 5.寄生式继承
 
-- 在原型式继承的基础上，在函数内部为对象绑定属性和方法，返回一个新对象。
-- 优点：可以对继承的对象进行扩展，增加新的属性或方法。
-- 缺点：跟构造函数继承一样，每次创建实例都要**创建一遍方法**，无法复用，效率较低。
+- 在原型式继承的基础上，在函数内部为对象绑定属性和方法，返回一个新对象。这里的`fatherPrototype`更像是直接作为了一个构造函数的原型，和直接`new`这个构造函数没区别？
+- 优点：
+  - 可以对继承的对象进行扩展，增加新的属性或方法。
+
+- 缺点：
+  - 无法向父类传递参数，换句话说，没有父类属性的概念，只有原型的概念
+
 - 应用场景：适合对一个对象进行浅复制或者克隆，并且需要增加一些新的功能。
 - 代码案例：
 
 ```javascript
-function fun (obj) {
-  function Son () {};
-  Son.prototype = obj;
-  return new Son ();
+/* 
+    直接指定子类的原型
+*/
+
+const fatherPrototype = {
+	name: "zhangsan",
+	age: 18,
+	sayName() {
+		return this.name
+	},
 }
 
-function JiSheng (obj) {
-  var clone = fun (obj);
-  clone.Say = function () {
-    console.log ('我是新增的方法');
-  }
-  return clone;
+function create(proto) {
+	function f() {}
+	f.prototype = proto
+	return new f()
 }
 
-var parent = {
-  name: 'kevin'
+function jiSheng(proto) {
+	// 添加原型
+	const obj = create(proto)
+	// 添加属性
+	obj.height = 180
+	return obj
 }
+/* 
+    优点：
+        1. 相对于原型式来说，添加了新增属性方法的功能
+    缺点：
+        1. 无法使用给父类传递参数
+*/
+const son1 = jiSheng(fatherPrototype)
 
-var parent1 = JiSheng (parent);
-var parent2 = JiSheng (parent);
+console.log(son1.name, son1.age, son1.height) // zhangsan 18
+console.log(son1.sayName()) // zhangsan
 
-console.log (parent2.Say == parent1.Say); // false
 ```
 
 ##### 6.寄生组合式继承
 
 - 通过借用构造函数继承父类属性，通过寄生式继承父类原型：
   - 通过构造函数方法来继承父类的属性；
-  - 通过寄生式继承父类原型，获取到父类的原型对象，通过寄生式方式创建一个中间对象，中间对象的原型为父类的原型对象，然后将中间对象作为子类的原型对象。这样可以避免父类子类共用一个原型对象，进而避免子类修改原型对象对父类的原型对象造成影响。
+  - 通过寄生式继承父类原型，获取到父类的原型对象，通过寄生式方式创建一个中间对象，中间对象的原型为父类的原型对象，然后将中间对象作为子类的原型对象。
 - 优点：集合了构造函数继承和寄生式继承的优点，是最完美的继承方式，也是ES6中class语法糖的实现原理。同时避免了调用两次父类构造函数的问题。
+  - 可以向父类传参
+  - 可以使用父类的实例属性
+  - 可以使用父类的原型方法
+  - 拥有自己的原型
+
 - 缺点：实现较为复杂，需要理解原型链和构造函数的关系。
 - 应用场景：适合任何继承需求，需要考虑内存优化的情况。
 - 代码案例：
 
-```javascript
-function Parent (name) {
-  this.name = name;
+```JavaScript
+function father(name, age) {
+	this.name = name
+	this.age = age
 }
 
-Parent.prototype.getName = function () {
-  console.log (this.name);
+father.prototype.sayName = function () {
+	console.log(this.name)
 }
 
-function Child (name) {
-  Parent.call (this, name);
+function son(name, age, height) {
+	father.call(this, name, age)
+	this.height = height
 }
 
-function fun (obj) {
-  function Son () {};
-  Son.prototype = obj;
-  return new Son ();
+// 通过寄生式，生成新对象，新对象的原型指向父类的原型对象
+function create(prototype) {
+	function f() {}
+	f.prototype = prototype
+    return new f()
 }
+// 子类原型指向空对象，空对象原型指向父类原型对象
+/* 
+    为什么不能直接使用son.prototype = father.prototype呢？
+        1. 避免原型污染，如果修改son的原型也会修改了father的原型
+        2. 继承失真，子类原型方法和父类一直，导致失去了继承的意义
+    使用寄生式的好处就是，空对象作为子类的原型，父类的原型对象作为空对象的原型
+*/
+son.prototype = create(father.prototype) 
+son.prototype.sayHeight = function () {
+	console.log(this.height)
+}
+son.prototype.constructor = son
 
-Child.prototype = fun (Parent.prototype);
+/* 
+    优点：
+        1. 通过构造函数的方式，实现了
+            - 使用父类的属性，并且可以给父类传递参数
+        2. 通过寄生式的方式，实现了
+            - 子类实例共用父类的原型对象属性和方法
+            - 避免了直接使用父类实例作为原型时，关于子类属性引用的问题
+*/
+// 基本使用
+// 优点：实现了可以给父元素传递参数
+const son1 = new son("son1", 10, 180)
+console.log(son1.name, son1.age, son1.height)
 
-Child.prototype.constructor = Child;
+// 问题1：无法使用父类的原型对象上的方法
+// son1.sayName() // 报错
 
-var child1 = new Child ('kevin');
-var child2 = new Child ('daisy');
+// 问题2：
 
-child1.getName (); // kevin
-child2.getName (); // daisy
 ```
 
 ##### 7. class extends
