@@ -1,55 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <style>
-      .outer {
-        position: relative;
-        left: 100px;
-        width: 500px;
-        height: 500px;
-        background-color: aqua;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    div {
+      width: 400px;
+      height: 200px;
+      background-color: #4c6ef4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    span {
+      color:#f1d9a1;
+      font-size: 40px;
+      font-weight:bolder;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <span>Form 表单</span>
+  </div>  
+</body>
 
-      .inner {
-        margin-top: 100px;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="outer"></div>
-    <div class="inner">
-      <div class="title">评论 {{ wallInfoStore.noteMessage.comment }}</div>
-    </div>
-    <script>
-      // 生成随机整数
-      function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-      }
-
-      // 生成随机颜色
-      function getRandomColor() {
-        var r = getRandomInt(0, 255);
-        var g = getRandomInt(0, 255);
-        var b = getRandomInt(0, 255);
-        var a = Math.random().toFixed(2); // 保留两位小数，生成随机透明度
-        return "rgba(" + r + ", " + g + ", " + b + ", " + a + ")";
-      }
-
-      // 存储随机颜色的数组
-      var colors = [];
-
-      // 生成并存储随机颜色
-      for (var i = 0; i < 10; i++) {
-        var randomColor = getRandomColor();
-        colors.push(randomColor);
-      }
-
-      // 打印随机颜色数组
-      console.log(colors);
-    </script>
-  </body>
 </html>

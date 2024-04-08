@@ -1,38 +1,36 @@
-import os
-import shutil
-folder_path = 'E:\研究生\自我学习\leetcode'  # 替换为你要获取信息的文件夹路径
-
-# 获取文件夹下所有文件和文件夹的名称
-file_names = os.listdir(folder_path)
-
-# 遍历文件夹下的每个文件和文件夹
-for file_name in file_names:
-    # 获取文件或文件夹的完整路径
-    file_path = os.path.join(folder_path, file_name)
+# Define the function to find the maximum excellence
+def find_max_excellence(n, k, likes, comments):
+    # Sort the comments and likes together based on comments in descending order
+    notes = sorted(zip(comments, likes), reverse=True)
     
-    # 判断是否为文件
-    if os.path.isfile(file_path):
-        # 获取文件的信息
-        file_size = os.path.getsize(file_path)  # 文件大小（字节）
-        file_creation_time = os.path.getctime(file_path)  # 文件创建时间
-        file_modification_time = os.path.getmtime(file_path)  # 文件修改时间
+    # Initialize variables to track the likes total and max excellence
+    likes_total = 0
+    max_excellence = 0
+    
+    # Calculate total likes for the first k notes
+    for i in range(k):
+        likes_total += notes[i][1]
+    
+    # Iterate through the notes to find the maximum excellence
+    for i in range(n - k + 1):
+        # Current excellence is the total likes times the k-th comment in the subarray
+        current_excellence = likes_total * notes[i+k-1][0]
+        max_excellence = max(max_excellence, current_excellence)
         
-        # 打印文件信息
-        print(f'文件名: {file_name}')
-        print(f'文件大小: {file_size} 字节')
-        print(f'创建时间: {file_creation_time}')
-        print(f'修改时间: {file_modification_time}')
-        print('---')
-        
-    # 如果是文件夹，可以选择是否获取文件夹的信息
-    elif os.path.isdir(file_path):
-        # 获取文件夹的信息
-        folder_creation_time = os.path.getctime(file_path)  # 文件夹创建时间
-        folder_modification_time = os.path.getmtime(file_path)  # 文件夹修改时间
-        folder_size = shutil.disk_usage(file_path).total
-        # 打印文件夹信息
-        print(f'文件夹名: {file_name}')
-        print(f'文件价大小: {folder_size} 字节')
-        print(f'创建时间: {folder_creation_time}')
-        print(f'修改时间: {folder_modification_time}')
-        print('---')
+        # Update the total likes by adding the next note's likes and
+        # subtracting the likes of the note that will be removed in the next window
+        if i+k < n:
+            likes_total += notes[i+k][1]
+        if i+k-1 < n:
+            likes_total -= notes[i][1]
+
+    return max_excellence
+
+# Example usage:
+n, k = 4, 2
+likes = [1, 2, 3, 4]
+comments = [3, 4, 2, 1]
+
+# Calculate the maximum excellence
+max_excellence = find_max_excellence(n, k, likes, comments)
+print(max_excellence)
