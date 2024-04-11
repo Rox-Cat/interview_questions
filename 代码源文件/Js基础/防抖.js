@@ -4,17 +4,15 @@
 */
 
 
-function fangdou(func, n) {
+function debounce(func, n) {
     let t1  = null 
     return function (...args) {
-        let that = this
         if (t1) {
             clearTimeout(t1)
-            t1 = null
         }
         t1 = setTimeout(() => {
-            func.call(that,...args)
-            clearTimeout(t1)
+            func.call(this, ...args)
+            t1 = null
         }, n)
     }
 }
@@ -28,8 +26,18 @@ let obj = {
     }
 }
 
-let func1 = fangdou(obj.print, 1000)
-func1('这是啥')
+obj.func1 = debounce(obj.print, 2000)
+
+// 2000ms后执行
+obj.func1('这是啥')
+
 setTimeout(() => {
-    func1('第二次')
-}, 3000)
+    obj.func1("第一次")
+    // 更新为3000ms后执行
+}, 1000);
+
+
+setTimeout(() => {
+    obj.func1('第二次')
+    // 3500ms执行
+}, 3500)
