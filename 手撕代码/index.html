@@ -4,41 +4,45 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+	<title>Footer at Bottom</title>
+	<link rel="stylesheet" href="style.css">
+	<style>
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+
+		}
+
+		.content {
+			flex: 1;
+		}
+		.section{
+			height: 1000px;
+		}
+		.footer {
+			background-color: #f2f2f2;
+			/* 页脚背景色 */
+			padding: 10px 20px;
+			/* 页脚内间距 */
+			text-align: center;
+		}
+	</style>
 </head>
 
 <body>
-	<script>
-		// 创建一个 div 元素，并设置样式使其出现滚动条
-		const div = document.createElement('div');
-		div.style.width = '200px';
-		div.style.height = '200px';
-		div.style.overflow = 'auto';
-		div.style.border = '1px solid black';
-		div.textContent = 'This is some long text that will cause a scrollbar to appear. '.repeat(5);
-
-		// 将 div 添加到文档中
-		document.body.appendChild(div);
-
-		// 计算滚动尺寸和偏移尺寸
-		const scrollWidth = div.scrollWidth;
-		const scrollHeight = div.scrollHeight;
-		const offsetWidth = div.offsetWidth;
-		const offsetHeight = div.offsetHeight;
-
-		// 结果输出至控制台
-		console.log('Scroll Width:', scrollWidth);
-		console.log('Scroll Height:', scrollHeight);
-		console.log('Offset Width (including scrollbar if any):', offsetWidth);
-		console.log('Offset Height (including scrollbar if any):', offsetHeight);
-
-		// 判断是否有滚动条出现
-		const hasHorizontalScrollbar = scrollWidth > offsetWidth;
-		const hasVerticalScrollbar = scrollHeight > offsetHeight;
-
-		console.log('Has Horizontal Scrollbar:', hasHorizontalScrollbar);
-		console.log('Has Vertical Scrollbar:', hasVerticalScrollbar);
-	</script>
+	<div class="content">
+		<!-- 内容区 -->
+		<p>这里是内容...</p>
+		<div class="section"></div>
+	</div>
+	<footer class="footer">
+		<!-- 页脚区 -->
+		<p>这里是页脚</p>
+	</footer>
 </body>
 
 </html>

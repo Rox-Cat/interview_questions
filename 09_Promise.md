@@ -1,3 +1,63 @@
+# 异步任务的实现方式
+
+在ES5中，处理异步任务常用的方式主要有以下几种，这些方式在ES6及以后版本中仍然是可用的，但可能会更多地被Promise、async/await等现代特性所替代。不过，了解和掌握这些传统方法仍然对于理解JavaScript的异步编程模型非常重要。
+
+### 1. 回调函数（Callback）
+
+回调函数是最基本的异步处理方式，它允许你将一个函数作为参数传递给另一个函数。当外部函数完成异步操作后，内部的回调函数就会被调用。
+
+javascript
+
+```javascript
+function asyncOperation(callback) {
+  // 模拟异步操作
+  setTimeout(function() {
+    // 异步操作完成
+    callback('Operation completed');
+  }, 1000);
+}
+
+asyncOperation(function(message) {
+  console.log(message); // 输出：Operation completed
+});
+```
+
+### 2. 事件监听（Event Listeners）
+
+事件监听是另一种处理异步任务的方法。你可以为特定的事件注册一个监听器（也是一个函数）。当事件发生时（通常是在异步操作完成时），这个监听器会被自动调用。
+
+javascript
+
+```javascript
+// 假设我们有一个按钮，当点击时会执行异步操作
+var button = document.getElementById('myButton');
+button.addEventListener('click', function() {
+  setTimeout(function() { // 异步操作
+    console.log('Button clicked');
+  }, 1000);
+});
+```
+
+### 3. 发布/订阅模式（Publish/Subscribe）
+
+发布/订阅模式或者说观察者模式，涉及到订阅者和发布者两类对象。订阅者订阅特定的事件，并注册回调函数。当发布者发布事件时，所有订阅了该事件的订阅者注册的回调函数都会被调用。
+
+这个模式通常通过库实现，比如jQuery。
+
+javascript
+
+```javascript
+// 使用jQuery演示
+$(document).on('myCustomEvent', function(event, data) {
+  console.log(data.message);  // 输出：Hello, World!
+});
+
+// 某个异步操作完成，触发事件
+setTimeout(function() {
+  $(document).trigger('myCustomEvent', {message: 'Hello, World!'});
+}, 1000);
+```
+
 # Promise
 
 > 相关链接
@@ -133,7 +193,7 @@ then()方法的返回值是一个新的promise对象，并且这个对象的状�
 
   - js的.then(console.log)这段代码的意思是，当一个promise成功解决时，执行console.log函数，并隐式地将promise的结果传递给console.log函数。这是一种简写的方式，相当于.then(res => console.log(res))。如果你想给console.log函数传递其他参数，你可以使用Function.prototype.bind方法。
 
-  - 这段代码中.then()里面写的对象和数据，并没有报错，是因为.then()方法会忽略所有非函数的参数¹，并且会用一个恒等函数（(x) => x）或者一个抛出函数（(x) => { throw x; }）来替代它们²。所以，这段代码相当于：
+  - 这段代码中.then()里面写的对象和数据，并没有报错，是因为.then()方法会忽略所有非函数的参数，并且会用一个恒等函数（(x) => x）或者一个抛出函数（(x) => { throw x; }）来替代它们²。所以，这段代码相当于：
 
     ```js
         Promise.resolve(1)
@@ -227,8 +287,6 @@ Promise.finally()的返回值
     
     Promise.reject(7)
     .finally(() => Promise.reject(8)) // 返回一个等价于Promise.reject(8)的promise
-
-
 
 #### 7. ※Promise中的rejected
 
@@ -407,8 +465,8 @@ async function s3() {
     console.log(10);
     
 }
-
 console.log(5);
+s1()
 ```
 
 ```javascript
@@ -1279,8 +1337,6 @@ finally(func){
 }
 ```
 
-
-
 ## 手写promise常用方法
 
 注意：静态方法的参数为可迭代对象，而不一定是数组，如果使用forEach的话，可以使用Array.from()转为数组
@@ -1293,7 +1349,7 @@ finally(func){
 static resolve(value) {
     return new MyPromise((resolve, reject) => {
         if (value instanceof MyPromise) {
-            value.then(resolve, reject)
+            value.then(resolve, reject) // 参数为promise对象，那么返回值的状态取决于参数的promise
         } else {
             resolve(value)
         }
@@ -1379,7 +1435,7 @@ Promise._all = function (iterable) {
         const promises = Array.from(iterable)
         const n = promises.length
 
-        // 判断是否为空数组
+        // 判断是否为空数组，否则不进行遍历for循环，promise的状态就不会发生变化
         if (n === 0) return resolve([])
 
         let finish = 0
@@ -1509,26 +1565,82 @@ MyPromise.race([p1, p2, p3]).then((value) => {
 所有异步状态完成，返回promise
 
 ```js
-    static allSetted(arrs) {
-        return new Promise(resolve => {
-            let len = 0
-            const result = []
-            arrs = Array.from(arrs)
-            arrs.forEach((arr, idx) => {
-                Promise.resolve(arr).then((res) => {
-                    result[idx] = { status: "fulfilled", value: res }
-                }, (err) => {
-                    result[idx] = { status: "rejected", value: err }
-                }).finally(() => {
-                    len++
-                    if (len === arrs.length) {
-                        resolve(result)
-                    }
+
+Promise._allSettled = function(promises) {
+    return new Promise((resolve, reject) => {
+        if (typeof promises[Symbol.iterator] !== "function") {
+            return reject(new Error("promises must be an iterator"));
+        }
+
+        const results = new Array(promises.length).fill(false);
+        let settledCount = 0;
+
+        // Helper function to check if all promises have settled
+        const checkAllSettled = () => {
+            if (settledCount === promises.length) {
+                resolve(results);
+            }
+        };
+
+        // Iterate over the iterable object
+        for (let i = 0; i < promises.length; i++) {
+            Promise.resolve(promises[i])
+                .then(value => {
+                    results[i] = { status: 'fulfilled', value: value };
                 })
-            })
-        })
-    }
+                .catch(reason => {
+                    results[i] = { status: 'rejected', reason: reason };
+                })
+                .finally(() => {
+                    settledCount++;
+                    checkAllSettled(); // Check if all promises are settled
+                });
+        }
+
+        // Handle empty array of promises
+        if (promises.length === 0) {
+            resolve(results);
+        }
+    });
+};
 ```
+
+### Promise.any
+
+```js
+Promise._any = function (promises) {
+	return new Promise((resolve, reject) => {
+		// 错误处理
+		if (typeof promises[Symbol.iterator] !== "function") {
+			return reject(new TypeError("promises 必须是一个可迭代对象"))
+		}
+
+		const promises = Array.from(promises)
+		const n = promises.length
+		const errors = new Array(n)
+		let errorCnt = 0
+		if (n === 0) {
+			return reject("可迭代对象为空")
+		}
+		for (let i = 0; i < n; i++) {
+			Promise.resolve(promises[i]).then(
+				(res) => {
+					resolve(res)
+				},
+				(err) => {
+					errors[i] = err
+					errorCnt++
+					if (errorCnt === n) {
+						reject(errors)
+					}
+				}
+			)
+		}
+	})
+}
+```
+
+
 
 ## 应用场景
 

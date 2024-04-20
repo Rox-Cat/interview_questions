@@ -441,6 +441,8 @@ arr1.forEach((item, index) => {
 
 #### 4. this的指向
 
+> https://blog.csdn.net/Ed7zgeE9X/article/details/121413039
+
 >this指向的核心要点：
 >
 >- 修改this指向的四种方式
@@ -653,6 +655,28 @@ user.sayHi(); // Ilya
 因为箭头函数没有自己的this，它只会从外层作用域链中获取this，这个过程是在定义箭头函数的时候就完成了，不会随着调用方式的改变而改变。
 
 所以无论你怎么调用bar()，它里面的this都不会变化。
+
+
+
+```js
+function User(name, age) {
+    this.name = name;
+    this.age = age;
+    this.intro = function(){
+        console.log('My name is ' + this.name)
+    },
+    this.howOld = () => {
+        console.log('My age is ' + this.age)
+    }
+}
+ 
+var name = 'Tom', age = 18;
+var zc = new User('zc', 24);
+zc.intro();
+zc.howOld();
+```
+
+
 
 #### 5. 构造函数
 
@@ -1240,73 +1264,73 @@ import { name, sayHello  default as Person} from './module.js';
 
 **注：**
 
-1. #### **关于ES6和CommonJS的导入的修改**
+#### **关于ES6和CommonJS的导入的修改**
 
-   #### ES6
+#### ES6
 
-   导出对象之后，对对象进行修改，再在另一个文件中导出，第二个文件中导出的对象，是修改之后的对象。这是因为JS模块导出的值是**实时绑定**的，也就是说，导出的值是对内存地址的引用，而不是值的拷贝。这样，当对象的内容发生变化时，导出的引用也会反映这个变化。
+导出对象之后，对对象进行修改，再在另一个文件中导出，第二个文件中导出的对象，是修改之后的对象。这是因为JS模块导出的值是**实时绑定**的，也就是说，导出的值是对内存地址的引用，而不是值的拷贝。这样，当对象的内容发生变化时，导出的引用也会反映这个变化。
 
-   整个过程可以用一个例子来说明：
+整个过程可以用一个例子来说明：
 
-   - 假设我们有一个文件叫做obj.js，它定义了一个对象，并且导出它：
+- 假设我们有一个文件叫做obj.js，它定义了一个对象，并且导出它：
 
-   ```js
-   // obj.js
-   let obj = { x: 1, y: 2 };
-   export default obj;
-   ```
+```js
+// obj.js
+let obj = { x: 1, y: 2 };
+export default obj;
+```
 
-   - 然后我们在另一个文件中导入这个对象，并且修改它：
+- 然后我们在另一个文件中导入这个对象，并且修改它：
 
-   ```js
-   // modify.js
-   import obj from "./obj.js";
-   obj.x = 3;
-   obj.y = 4;
-   ```
+```js
+// modify.js
+import obj from "./obj.js";
+obj.x = 3;
+obj.y = 4;
+```
 
-   - 最后我们在第三个文件中再次导入这个对象，并且打印它：
+- 最后我们在第三个文件中再次导入这个对象，并且打印它：
 
-   ```js
-   // print.js
-   import obj from "./obj.js";
-   console.log(obj); // { x: 3, y: 4 }
-   ```
+```js
+// print.js
+import obj from "./obj.js";
+console.log(obj); // { x: 3, y: 4 }
+```
 
-   - 我们可以看到，打印出来的对象是修改之后的对象，而不是原来的对象。这是因为obj.js导出的是对obj对象的引用，而不是它的拷贝。当modify.js修改了obj对象时，它实际上是修改了内存中存储obj对象的位置。所以当print.js再次导入obj时，它得到的也是这个内存位置的引用，而不是一个新的拷贝。所以打印出来的结果就是修改之后的结果。
+- 我们可以看到，打印出来的对象是修改之后的对象，而不是原来的对象。这是因为obj.js导出的是对obj对象的引用，而不是它的拷贝。当modify.js修改了obj对象时，它实际上是修改了内存中存储obj对象的位置。所以当print.js再次导入obj时，它得到的也是这个内存位置的引用，而不是一个新的拷贝。所以打印出来的结果就是修改之后的结果。
 
-   #### CommonJS
+#### CommonJS
 
-   CommonJs导出的值不是实时绑定的，而是值的拷贝。这意味着，当导出的对象被修改时，其他模块导入的对象不会受到影响，仍然是原来的对象。这是因为CommonJs模块导出的是一个exports对象，这个对象在模块加载时被创建，并且在模块执行完毕后被缓存。当其他模块导入这个模块时，它们得到的是exports对象的一个拷贝，而不是对原始对象的引用。¹
+CommonJs导出的值不是实时绑定的，而是值的拷贝。这意味着，当导出的对象被修改时，其他模块导入的对象不会受到影响，仍然是原来的对象。这是因为CommonJs模块导出的是一个exports对象，这个对象在模块加载时被创建，并且在模块执行完毕后被缓存。当其他模块导入这个模块时，它们得到的是exports对象的一个拷贝，而不是对原始对象的引用。¹
 
-   整个过程可以用一个例子来说明：
+整个过程可以用一个例子来说明：
 
-   - 假设我们有一个文件叫做obj.js，它定义了一个对象，并且导出它：
+- 假设我们有一个文件叫做obj.js，它定义了一个对象，并且导出它：
 
-   ```js
-   // obj.js
-   let obj = { x: 1, y: 2 };
-   module.exports = obj;
-   ```
+```js
+// obj.js
+let obj = { x: 1, y: 2 };
+module.exports = obj;
+```
 
-   - 然后我们在另一个文件中导入这个对象，并且修改它：
+- 然后我们在另一个文件中导入这个对象，并且修改它：
 
-   ```js
-   // modify.js
-   let obj = require("./obj.js");
-   obj.x = 3;
-   obj.y = 4;
-   ```
+```js
+// modify.js
+let obj = require("./obj.js");
+obj.x = 3;
+obj.y = 4;
+```
 
-   - 最后我们在第三个文件中再次导入这个对象，并且打印它：
+- 最后我们在第三个文件中再次导入这个对象，并且打印它：
 
-   ```js
-   // print.js
-   let obj = require("./obj.js");
-   console.log(obj); // { x: 1, y: 2 }
-   ```
+```js
+// print.js
+let obj = require("./obj.js");
+console.log(obj); // { x: 1, y: 2 }
+```
 
-   - 我们可以看到，打印出来的对象是原来的对象，而不是修改之后的对象。这是因为obj.js导出的是exports对象的一个拷贝，而不是对obj对象的引用。当modify.js修改了obj对象时，它实际上是修改了自己导入的那个拷贝，而不影响原始的exports对象。所以当print.js再次导入obj时，它得到的也是exports对象的另一个拷贝，而不是modify.js修改过的那个拷贝。所以打印出来的结果就是原来的结果。
+- 我们可以看到，打印出来的对象是原来的对象，而不是修改之后的对象。这是因为obj.js导出的是exports对象的一个拷贝，而不是对obj对象的引用。当modify.js修改了obj对象时，它实际上是修改了自己导入的那个拷贝，而不影响原始的exports对象。所以当print.js再次导入obj时，它得到的也是exports对象的另一个拷贝，而不是modify.js修改过的那个拷贝。所以打印出来的结果就是原来的结果。
 
 
 2. #### ES6只读只存而CommonJs可以任意修改
@@ -1470,7 +1494,7 @@ alert(rabbit.isSleeping); // true
 alert(animal.isSleeping); // undefined（原型中没有此属性
 ```
 
-#### 构造函数之间的原型链
+#### 构造函数之间的原型链阴霾
 
 思考一个问题：
 
@@ -1632,6 +1656,33 @@ let user = {
   - 如果一个定时器的回调函数中又注册了一个定时器，那么这个新的定时器的回调函数会在当前宏任务队列的末尾执行。（等到该回调函数执行的时候，才加入到宏任务队列）
 
 #### 4. [async和await相关](#async 和 await相关的执行顺序)
+
+```
+setTimeout(() => {
+	console.log(1)
+}, 0)
+new Promise((resolve) => {
+	console.log(2)
+	resolve()
+	console.log(3)
+}).then(() => {
+	console.log(4)
+})
+
+const promise2 = new Promise(async (resolve) => {
+	console.log(await resolve(5))
+	console.log(6)
+})
+
+async function test() {
+	console.log(7)
+	console.log(await promise2)
+	console.log(8)
+}
+test()
+console.log(9)
+
+```
 
 
 
